@@ -1,0 +1,165 @@
+#!/bin/bash
+
+cd "$( dirname "${BASH_SOURCE[0]}" )"
+
+function help() {
+    echo "Options:"
+    echo "usage: getSizes [-b <bootloader elf or out path>] [-s <linker script path>] "
+    echo "                [-f <firmware elf path>] [-r <max ram size>]"
+    echo "                [-l <max flash size>] [-h]"
+    echo ""
+    echo " -b : Include the flash and RAM consumption of the bootloader, passing the"
+    echo "      path to the bootloader elf or out file"
+    echo " -f : Include the flash and RAM consumption of the firmware, passing the path"
+    echo "      to the firmware elf file"
+    echo " -h : Display this help"
+    echo " -l : Define the max flash size, in bytes, for % consumption calculation"
+    echo " -r : Define the max RAM size, in bytes, for % consumption calculation"
+    echo " -s : Include the flash and RAM consumption of the SoftDevice, retrieved from"
+    echo "      comments in the linker script file"
+    exit 0
+}
+
+if [[ $# == 0 ]]; then
+    help
+fi
+
+while [[ $# > 0 ]]
+do
+key="$1"
+
+case $key in
+    -b|--bootloader)
+    BOOTLOADER="$2"
+    if [[ ! -f "$BOOTLOADER" ]]; then
+        echo "Bootloader path invalid"
+        exit 1
+    fi
+    shift
+    ;;
+    -s|--softdevice)
+    SOFTDEVICE="$2"
+    if [[ ! -f "$SOFTDEVICE" ]]; then
+        echo "Linker script path invalid"
+        exit 1
+    fi
+    shift
+    ;;
+    -f|--firmware)
+    FIRMWARE="$2"
+    if [[ ! -f "$FIRMWARE" ]]; then
+        echo "Firmware path invalid"
+        exit 1
+    fi
+	shift # past value
+	;;
+    -r|--maxram)
+    MAXRAM="$2"
+    shift # past value
+    ;;
+    -l|--maxflash)
+    MAXFLASH="$2"
+    shift # past value
+    ;;
+    -h|--help)
+    help
+    ;;
+    *)
+            # unknown option
+    ;;
+esac
+shift # past argument or value
+done
+
+flash_size_output=0
+ram_size_output=0
+function size() {
+    local elf="$1"
+    regex="[[:space:]]*([0-9]+)[[:space:]]+([0-9]+)[[:space:]]+([0-9]+)"
+    output=$(arm-none-eabi-size "$elf")
+    if [[ $output =~ $regex ]]; then
+        flash_size_output=$((BASH_REMATCH[1]))
+        ram_size_output=$((BASH_REMATCH[2] + BASH_REMATCH[3]))
+        return 0
+    fi
+    return 1
+}
+
+BOOTLOADER_RAM_SIZE=0
+BOOTLOADER_FLASH_SIZE=0
+SOFTDEVICE_RAM_SIZE=0
+SOFTDEVICE_FLASH_SIZE=0
+FIRMWARE_RAM_SIZE=0
+FIRMWARE_FLASH_SIZE=0
+
+if [ -n "$BOOTLOADER" ]; then
+    size "$BOOTLOADER"
+    if [ $? -ne 0 ]; then
+        echo "Error retrieving bootloader size"
+        exit 1
+    fi
+    BOOTLOADER_RAM_SIZE="$ram_size_output"
+    BOOTLOADER_FLASH_SIZE="$flash_size_output"
+
+    echo "Bootloader: FLASH=$BOOTLOADER_FLASH_SIZE RAM=$BOOTLOADER_RAM_SIZE"
+fi
+
+if [ -n "$SOFTDEVICE" ]; then
+    linker_file=$(cat "$SOFTDEVICE")
+    flash_regex="SOFTDEVICE_FLASH \(rx\) : ORIGIN = 0x00001000, LENGTH = 0x([0-9a-f]{8})"
+    if [[ $linker_file =~ $flash_regex ]]; then
+        SOFTDEVICE_FLASH_SIZE=$((16#${BASH_REMATCH[1]}))
+    else
+        echo "Error retrieving softdevice flash size"
+        exit 1
+    fi
+
+    ram_regex="RAM \(rwx\)[[:space:]]*: ORIGIN = 0x20([0-9a-f]{6})"
+    if [[ $linker_file =~ $ram_regex ]]; then
+        SOFTDEVICE_RAM_SIZE=$((16#${BASH_REMATCH[1]}))
+    else
+        echo "Error retrieving softdevice ram size"
+        exit 1
+    fi
+
+    echo "Softdevice: FLASH=$SOFTDEVICE_FLASH_SIZE RAM=$SOFTDEVICE_RAM_SIZE"
+fi
+
+if [ -n "$FIRMWARE" ]; then
+    size "$FIRMWARE"
+    if [ $? -ne 0 ]; then
+        echo "Error retrieving firmware size"
+        exit 1
+    fi
+    FIRMWARE_RAM_SIZE="$ram_size_output"
+    FIRMWARE_FLASH_SIZE="$flash_size_output"
+
+    echo "Firmware: FLASH=$FIRMWARE_FLASH_SIZE RAM=$FIRMWARE_RAM_SIZE"
+fi
+
+TOTAL_FLASH=$((BOOTLOADER_FLASH_SIZE + SOFTDEVICE_FLASH_SIZE + FIRMWARE_FLASH_SIZE))
+TOTAL_RAM=$((SOFTDEVICE_RAM_SIZE + FIRMWARE_RAM_SIZE))
+
+echo "Total: FLASH=$TOTAL_FLASH RAM=$TOTAL_RAM"
+
+prog() {
+    local w=40 p=$1;  shift
+    # create a string of spaces, then change them to dots
+    printf -v dots "%*s" "$(( $p*$w/100 ))" ""; dots=${dots// /#};
+    # print those dots on a fixed-width space plus the percentage etc.
+    printf "|%-*s| %3d %% %s" "$w" "$dots" "$p" "$*";
+}
+
+if [ -n "$MAXRAM" ]; then
+    percent=$(((TOTAL_RAM * 100) / MAXRAM))
+    echo -n "RAM   "
+    prog "$percent"
+    echo ""
+fi
+
+if [ -n "$MAXFLASH" ]; then
+    percent=$(((TOTAL_FLASH * 100) / MAXFLASH))
+    echo -n "FLASH "
+    prog "$percent"
+    echo ""
+fi

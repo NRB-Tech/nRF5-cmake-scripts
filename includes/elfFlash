@@ -1,0 +1,16 @@
+#!/bin/sh
+# print all non-empty symbols in flash (addresses beginning in 0x00??????)
+ME="${0##*/}" # my name
+elf=$1
+
+if [ $# -ne 1 -o ! -x "$1" ]; then
+    echo "Usage: $ME <elf file>"
+    exit
+fi
+
+arm-none-eabi-readelf --wide --symbols $elf | \
+    awk '$2 ~/^00/ && $3 != 0' | \
+    sed 's/^[ 0-9]\+:\s\+//' | \
+    sort | uniq -w 8
+
+exit 0

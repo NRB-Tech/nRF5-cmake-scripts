@@ -1,0 +1,22 @@
+#!/bin/bash
+
+realpath() {
+  OURPWD=$PWD
+  cd "$(dirname "$1")"
+  LINK=$(readlink "$(basename "$1")")
+  while [ "$LINK" ]; do
+    cd "$(dirname "$LINK")"
+    LINK=$(readlink "$(basename "$1")")
+  done
+  REALPATH="$PWD/$(basename "$1")"
+  cd "$OURPWD"
+  echo "$REALPATH"
+}
+
+root="$( realpath $(dirname "${BASH_SOURCE[0]}") )"
+
+cd "$root/../toolchains/nRF5"
+
+diff -Naur -x *.DS_Store -x *.elf -x *.hex -x *.map -x *.o -x *.bin -x _build -x Output -x *.emSession nrf5SDKforMeshv400src.orig nrf5SDKforMeshv400src > "$root/sdk/nrf5SDKforMeshv400src.patch"
+
+echo "Done!"

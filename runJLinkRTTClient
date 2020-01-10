@@ -1,0 +1,3 @@
+#!/bin/bash
+
+JLinkRTTClient -RTTTelnetPort 19022

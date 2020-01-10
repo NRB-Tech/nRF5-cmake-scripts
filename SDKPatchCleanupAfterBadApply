@@ -1,0 +1,28 @@
+#!/bin/bash
+
+realpath() {
+  OURPWD=$PWD
+  cd "$(dirname "$1")"
+  LINK=$(readlink "$(basename "$1")")
+  while [ "$LINK" ]; do
+    cd "$(dirname "$LINK")"
+    LINK=$(readlink "$(basename "$1")")
+  done
+  REALPATH="$PWD/$(basename "$1")"
+  cd "$OURPWD"
+  echo "$REALPATH"
+}
+
+root="$( realpath $(dirname "${BASH_SOURCE[0]}") )"
+
+cd "$root/../toolchains/nRF5"
+
+find nrf5SDKforMeshv400src '(' \
+    -name \*-baseline -o \
+    -name \*-merge -o \
+    -name \*-original -o \
+    -name \*.orig -o \
+    -name \*.rej \
+')' -delete
+
+echo "Done!"

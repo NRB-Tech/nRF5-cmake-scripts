@@ -1,0 +1,90 @@
+diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv400src.orig/CMake/GenerateSESProject.cmake nrf5SDKforMeshv400src/CMake/GenerateSESProject.cmake
+--- nrf5SDKforMeshv400src.orig/CMake/GenerateSESProject.cmake	2019-12-03 09:51:13.000000000 +0000
++++ nrf5SDKforMeshv400src/CMake/GenerateSESProject.cmake	2020-01-04 14:41:43.000000000 +0000
+@@ -12,6 +12,8 @@
+ set(nrf52840_xxAA_STARTUP_FILE "${SDK_ROOT}/modules/nrfx/mdk/ses_startup_nrf52840.s")
+ set(SES_COMMON_STARTUP_FILE "${SDK_ROOT}/modules/nrfx/mdk/ses_startup_nrf_common.s")
+ 
++set(DIR_OF_THIS_FILE ${CMAKE_CURRENT_LIST_DIR})
++
+ function (add_ses_project TARGET_NAME)
+     if (GENERATE_SES_PROJECTS)
+         get_property(target_sources TARGET ${TARGET_NAME} PROPERTY SOURCES)
+@@ -26,13 +28,12 @@
+             set(target_include_dirs ${target_include_dirs} ${lib_include_dirs})
+         endforeach ()
+         # We'll remove the GCC one in python
+-        set(target_sources ${target_sources} ${${PLATFORM}_STARTUP_FILE})
+-        set(target_sources ${target_sources} ${SES_COMMON_STARTUP_FILE} "${CMAKE_CURRENT_SOURCE_DIR}/include/sdk_config.h")
++        set(target_sources ${target_sources} ${${PLATFORM}_STARTUP_FILE} ${SES_COMMON_STARTUP_FILE} "${CMAKE_CURRENT_SOURCE_DIR}/sdk_config.h")
+         set(target_defines NO_VTOR_CONFIG ${target_defines})
+ 
+         list(REMOVE_DUPLICATES target_include_dirs)
+ 
+-        file(RELATIVE_PATH default_sdk_path ${CMAKE_CURRENT_SOURCE_DIR} "${CMAKE_SOURCE_DIR}/../nRF5_SDK_16.0.0_98a08e2")
++        file(RELATIVE_PATH default_sdk_path ${CMAKE_CURRENT_SOURCE_DIR} "${SDK_ROOT}")
+ 
+         set(target_sources_with_macro "")
+         foreach (target_source IN ITEMS ${target_sources})
+@@ -60,12 +61,12 @@
+     },
+     \"platform\": {
+         \"name\": \"${PLATFORM}\",
+-        \"definition_file\": \"${CMAKE_SOURCE_DIR}/tools/configuration/platforms.json\"
++        \"definition_file\": \"${DIR_OF_THIS_FILE}/../tools/configuration/platforms.json\"
+     },
+     \"softdevice\": {
+         \"name\": \"${SOFTDEVICE}\",
+         \"hex_file\": \"${sd_hex}\",
+-        \"definition_file\": \"${CMAKE_SOURCE_DIR}/tools/configuration/softdevices.json\"
++        \"definition_file\": \"${DIR_OF_THIS_FILE}/../tools/configuration/softdevices.json\"
+     }
+ }")
+ 
+diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv400src.orig/CMake/SES/SESGenerator.py nrf5SDKforMeshv400src/CMake/SES/SESGenerator.py
+--- nrf5SDKforMeshv400src.orig/CMake/SES/SESGenerator.py	2019-12-03 09:51:13.000000000 +0000
++++ nrf5SDKforMeshv400src/CMake/SES/SESGenerator.py	2020-01-04 14:34:10.000000000 +0000
+@@ -88,7 +88,6 @@
+     Group(name="Mesh stack", files=[], match_string="mesh/stack"),
+     Group(name="GATT", files=[], match_string="mesh/gatt"),
+     Group(name="DFU", files=[], match_string="mesh/dfu"),
+-    Group(name="Toolchain", files=[File("$(StudioDir)/source/thumb_crt0.s")], match_string="toolchain"),
+     Group(name="Access", files=[], match_string="mesh/access"),
+     Group(name="Bearer", files=[], match_string="mesh/bearer"),
+     Group(name="SEGGER RTT", files=[], match_string="rtt"),
+@@ -99,7 +98,10 @@
+     Group(name="Health Model", files=[], match_string="models/foundation/health"),
+     Group(name="Generic OnOff Model", files=[], match_string="models/model_spec/generic_onoff"),
+     Group(name="Simple OnOff Model", files=[], match_string="models/vendor/simple_on_off"),
+-    Group(name="Remote provisioning Model", files=[], match_string="models/experimental/pb_remote")]
++    Group(name="Remote provisioning Model", files=[], match_string="models/experimental/pb_remote"),
++    Group(name="Toolchain", files=[File("$(StudioDir)/source/thumb_crt0.s")], match_string="toolchain")
++    ]
++
+ 
+ def unix_relative_path_get(path1, path2):
+     if not path1.startswith('$('):
+diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv400src.orig/CMake/toolchain/gccarmemb.cmake nrf5SDKforMeshv400src/CMake/toolchain/gccarmemb.cmake
+--- nrf5SDKforMeshv400src.orig/CMake/toolchain/gccarmemb.cmake	2019-12-03 09:51:14.000000000 +0000
++++ nrf5SDKforMeshv400src/CMake/toolchain/gccarmemb.cmake	2020-01-04 14:34:10.000000000 +0000
+@@ -44,7 +44,7 @@
+     add_custom_command(
+         TARGET ${executable}
+         POST_BUILD
+-        COMMAND arm-none-eabi-objcopy -O ihex ${CMAKE_CURRENT_BINARY_DIR}/${executable}.elf ${CMAKE_CURRENT_BINARY_DIR}/${executable}.hex
++        COMMAND arm-none-eabi-objcopy -R .rtt -O ihex ${CMAKE_CURRENT_BINARY_DIR}/${executable}.elf ${CMAKE_CURRENT_BINARY_DIR}/${executable}.hex
+         BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/${executable}.hex)
+ 
+     add_custom_command(
+diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv400src.orig/CMake/nrfjprog.py nrf5SDKforMeshv400src/CMake/nrfjprog.py
+--- nrf5SDKforMeshv400src.orig/CMake/nrfjprog.py	2019-12-03 10:51:14.000000000 +0000
++++ nrf5SDKforMeshv400src/CMake/nrfjprog.py	2020-01-04 18:10:50.000000000 +0000
+@@ -41,6 +41,8 @@
+ 
+ 
+ def select_devices(devices):
++    if len(devices) == 1:
++        return [devices[0]]
+     device_range = list(range(len(devices)))
+     number = None
+     while number is None:
