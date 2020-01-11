@@ -4,7 +4,7 @@ CMake scripts for developing projects with Nordic Semiconductor nRF5 series SoCs
 
 This project originally forked from [cmake-nRF5x](https://github.com/Polidea/cmake-nRF5x) which is a self-contained nRF5 CMake solution. As this project takes a different approach (using Nordic Mesh SDK) it was set up as a new project.
 
-# Dependencies
+## Dependencies
 
 The script makes use of the following dependencies which are downloaded by the script:
 
@@ -22,7 +22,7 @@ The script depends on the following external dependencies:
     brew install arm-none-eabi-gcc
     ```
 
-# Setup
+## Setup
 
 The script depends on the nRF5 SDK and the nRF5 mesh SDK. It can download these dependencies for you.
 
@@ -36,7 +36,7 @@ cmake -Bcmake-build-debug -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug
 
 This will download the dependencies and then generate the build files using the toolchain.
 
-## Creating your own project
+### Creating your own project
 
 _Note_: You can also follow the tutorial on the [NRB Tech blog](hhttps://nrbtech.io/blog/2020/1/4/using-cmake-for-nordic-nrf52-projects).
 
@@ -60,7 +60,7 @@ _Note_: You can also follow the tutorial on the [NRB Tech blog](hhttps://nrbtech
 
     To include BLE services, use `nRF5_addBLEService(<service name>)`.
 
-# Build
+## Build
 
 After setup you can use cmake as usual:
 
@@ -85,8 +85,49 @@ There are also other targets available:
 - `pkg_<your target name>`: Builds and packages your application for DFU
 - `pkg_bl_sd_<your target name>`: Builds and packages your application, the SoftDevice, and bootloader for DFU.
 
+## SEGGER RTT logging in bootloader and app
 
-# Flash
+By default, SEGGER RTT will be init in the bootloader, and then re-init in the app at a different memory location. The RTT client reads memory directly from RAM, so will only pick up on the App's RTT memory. To make RTT work across bootloader and app you need to only init in the bootloader and ensure the App continues to use the same RAM location for RTT.
+
+To do this, create a new header `rtt_config.h`, add:
+
+```c
+#define SEGGER_RTT_SECTION ".rtt"
+``` 
+
+and also copy in all the `SEGGER_RTT_CONFIG_...` defines from `sdk_config.h`/`app_config.h`. Include this file in your `sdk_config.h`/`app_config.h` and the bootloader `sdk_config.h`/`app_config.h`.
+
+In the nRF52 SDK, `modules/nrfx/mdk/nrf_common.ld`, add the following before `.data : AT (__etext)`:
+
+```
+.rtt:
+{
+} > RAM
+```
+
+This symbol must be removed from the hex file, but the mesh SDK patch in this project modifies the mesh SDK to do that.
+
+Ensure the RAM start and size are aligned in the app and bootloader linker scripts.
+
+In the nRF52 SDK, `external/segger_rtt/SEGGER_RTT.c`, change the `SEGGER_RTT_Init` function to:
+
+```c
+void SEGGER_RTT_Init (void) {
+    if(_SEGGER_RTT.acID[0] != 'S') {
+        _DoInit();
+    }
+}
+```
+
+This ensures that RTT is not re-init in the App if already init in the bootloader.
+
+Ensure all the SEGGER files are compiled in your bootloader – refer to the `_debug` makefiles to do see what is required.
+
+Ensure the bootloader `sdk_config.h`/`app_config.h` is configured to use RTT.
+
+You should then see continuous RTT output from the bootloader and App.
+
+## Flash
 
 In addition to the build targets the script adds some support targets:
 

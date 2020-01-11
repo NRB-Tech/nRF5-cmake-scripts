@@ -64,18 +64,6 @@ diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' 
  
  def unix_relative_path_get(path1, path2):
      if not path1.startswith('$('):
-diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv400src.orig/CMake/toolchain/gccarmemb.cmake nrf5SDKforMeshv400src/CMake/toolchain/gccarmemb.cmake
---- nrf5SDKforMeshv400src.orig/CMake/toolchain/gccarmemb.cmake	2019-12-03 09:51:14.000000000 +0000
-+++ nrf5SDKforMeshv400src/CMake/toolchain/gccarmemb.cmake	2020-01-04 14:34:10.000000000 +0000
-@@ -44,7 +44,7 @@
-     add_custom_command(
-         TARGET ${executable}
-         POST_BUILD
--        COMMAND arm-none-eabi-objcopy -O ihex ${CMAKE_CURRENT_BINARY_DIR}/${executable}.elf ${CMAKE_CURRENT_BINARY_DIR}/${executable}.hex
-+        COMMAND arm-none-eabi-objcopy -R .rtt -O ihex ${CMAKE_CURRENT_BINARY_DIR}/${executable}.elf ${CMAKE_CURRENT_BINARY_DIR}/${executable}.hex
-         BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/${executable}.hex)
- 
-     add_custom_command(
 diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv400src.orig/CMake/nrfjprog.py nrf5SDKforMeshv400src/CMake/nrfjprog.py
 --- nrf5SDKforMeshv400src.orig/CMake/nrfjprog.py	2019-12-03 10:51:14.000000000 +0000
 +++ nrf5SDKforMeshv400src/CMake/nrfjprog.py	2020-01-04 18:10:50.000000000 +0000
@@ -88,3 +76,16 @@ diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' 
      device_range = list(range(len(devices)))
      number = None
      while number is None:
+diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv400src.orig/CMake/toolchain/gccarmemb.cmake nrf5SDKforMeshv400src/CMake/toolchain/gccarmemb.cmake
+--- nrf5SDKforMeshv400src.orig/CMake/toolchain/gccarmemb.cmake	2019-12-03 09:51:14.000000000 +0000
++++ nrf5SDKforMeshv400src/CMake/toolchain/gccarmemb.cmake	2020-01-11 10:31:46.000000000 +0000
+@@ -44,7 +44,8 @@
+     add_custom_command(
+         TARGET ${executable}
+         POST_BUILD
+-        COMMAND arm-none-eabi-objcopy -O ihex ${CMAKE_CURRENT_BINARY_DIR}/${executable}.elf ${CMAKE_CURRENT_BINARY_DIR}/${executable}.hex
++        # Remove RTT symbol when building. See readme.md section "SEGGER RTT logging in bootloader and app"
++        COMMAND arm-none-eabi-objcopy -R .rtt -O ihex ${CMAKE_CURRENT_BINARY_DIR}/${executable}.elf ${CMAKE_CURRENT_BINARY_DIR}/${executable}.hex
+         BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/${executable}.hex)
+ 
+     add_custom_command(
