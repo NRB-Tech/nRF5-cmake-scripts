@@ -489,6 +489,47 @@ macro(nRF5_addLegacyUART)
             )
 endmacro()
 
+# adds serial library
+macro(nRF5_addSerial)
+    nRF5_addLegacyUART()
+    nRF5_addMutex()
+    nRF5_addQueue()
+    nRF5_addAppTimer()
+    list(APPEND INCLUDE_DIRS
+            "${SDK_ROOT}/components/libraries/serial"
+            )
+
+    list(APPEND SOURCE_FILES
+            "${SDK_ROOT}/components/libraries/serial/nrf_serial.c"
+            )
+endmacro()
+
+macro(nRF5_addLibuarteDrv)
+    nRF5_addUART()
+    nRF5_addGPIOTE()
+    nRF5_addPRS()
+    nRF5_addPPI()
+    nRF5_addTimer()
+    list(APPEND INCLUDE_DIRS
+            "${SDK_ROOT}/components/libraries/libuarte"
+            )
+
+    list(APPEND SOURCE_FILES
+            "${SDK_ROOT}/components/libraries/libuarte/nrf_libuarte_drv.c"
+            )
+endmacro()
+
+macro(nRF5_addLibuarteAsync)
+    nRF5_addLibuarteDrv()
+    nRF5_addBalloc()
+    nRF5_addQueue()
+    nRF5_addRTC()
+
+    list(APPEND SOURCE_FILES
+            "${SDK_ROOT}/components/libraries/libuarte/nrf_libuarte_async.c"
+            )
+endmacro()
+
 # adds timer driver
 macro(nRF5_addTimer)
     list(APPEND INCLUDE_DIRS
@@ -519,21 +560,6 @@ macro(nRF5_addQueue)
 
     list(APPEND SOURCE_FILES
             "${SDK_ROOT}/components/libraries/queue/nrf_queue.c"
-            )
-endmacro()
-
-# adds serial library
-macro(nRF5_addSerial)
-    nRF5_addLegacyUART()
-    nRF5_addMutex()
-    nRF5_addQueue()
-    nRF5_addAppTimer()
-    list(APPEND INCLUDE_DIRS
-            "${SDK_ROOT}/components/libraries/serial"
-            )
-
-    list(APPEND SOURCE_FILES
-            "${SDK_ROOT}/components/libraries/serial/nrf_serial.c"
             )
 endmacro()
 
