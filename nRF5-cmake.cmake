@@ -1,10 +1,27 @@
 cmake_minimum_required(VERSION 3.6)
+
+if (NOT CMAKE_VERSION VERSION_LESS 3.9)
+    # Allow user to enable CMAKE_INTERPROCEDURAL_OPTIMIZATION (LTO) if supported for the toolchain.
+    # This is supported from CMake version 9 and later.
+    cmake_policy(SET CMP0069 NEW)
+endif ()
+
 set(nRF5_SDK_VERSION "nRF5_SDK_16.0.0_98a08e2" CACHE STRING "nRF5 SDK")
+set(nRF5_MESH_SDK_VERSION "400" CACHE STRING "nRF5 Mesh SDK version")
+
+if(NOT DEFINED CMAKE_CONFIG_DIR)
+    set(CMAKE_CONFIG_DIR "${CMAKE_SOURCE_DIR}/toolchains/nRF5/nrf5SDKforMeshv${nRF5_MESH_SDK_VERSION}src/CMake")
+endif()
+if(NOT DEFINED SDK_ROOT)
+    set(SDK_ROOT "${CMAKE_SOURCE_DIR}/toolchains/nRF5/${nRF5_SDK_VERSION}")
+endif()
+
+# find programs
+find_program(NRFJPROG nrfjprog)
+find_program(MERGEHEX mergehex)
+find_program(NRFUTIL nrfutil)
 
 # check if all the necessary tools paths have been provided.
-if (NOT SDK_ROOT)
-    message(FATAL_ERROR "The path to the nRF5 SDK (SDK_ROOT) must be set.")
-endif ()
 
 if (NOT NRFJPROG)
     message(FATAL_ERROR "The path to the nrfjprog utility (NRFJPROG) must be set.")
@@ -18,10 +35,6 @@ if (NOT NRFUTIL)
     message(FATAL_ERROR "The path to the nrfutil utility (NRFUTIL) must be set.")
 endif ()
 
-if(NOT CMAKE_CONFIG_DIR)
-    message(FATAL_ERROR "The path to the CMake config (CMAKE_CONFIG_DIR) must be set.")
-endif()
-
 if(NOT IC)
     message(FATAL_ERROR "The chip (IC) must be set, e.g. \"nrf52832\"")
 endif()
@@ -29,22 +42,26 @@ endif()
 if(NOT SOFTDEVICE_TYPE)
     message(FATAL_ERROR "The softdevice type (SOFTDEVICE_TYPE) must be set, e.g. \"s132\"")
 endif()
+
 if(NOT SOFTDEVICE_VERSION)
     message(FATAL_ERROR "The softdevice version (SOFTDEVICE_VERSION) must be set, e.g. \"7.0.1\"")
 endif()
+
 set(SOFTDEVICE "${SOFTDEVICE_TYPE}_${SOFTDEVICE_VERSION}" CACHE STRING "${IC} SoftDevice")
 
-# must be set in file (not macro) scope (in macro would point to parent CMake directory)
-set(DIR_OF_nRF5_CMAKE ${CMAKE_CURRENT_LIST_DIR})
+string(SUBSTRING ${PLATFORM} 0 5 NRF_FAMILY)
 
-include(${DIR_OF_nRF5_CMAKE}/includes/libraries.cmake)
+# must be set in file (not macro) scope (in macro would point to parent CMake directory)
+set(nRF5_CMAKE_PATH ${CMAKE_CURRENT_LIST_DIR})
+
+include(${nRF5_CMAKE_PATH}/includes/libraries.cmake)
 
 find_program(PATCH_EXECUTABLE patch
         DOC "Path to `patch` command line executable")
 
 set(MESH_PATCH_COMMAND "")
 if (PATCH_EXECUTABLE)
-    set(MESH_PATCH_FILE "${DIR_OF_nRF5_CMAKE}/sdk/nrf5SDKforMeshv400src.patch")
+    set(MESH_PATCH_FILE "${nRF5_CMAKE_PATH}/sdk/nrf5SDKforMeshv${nRF5_MESH_SDK_VERSION}src.patch")
     if (EXISTS "${MESH_PATCH_FILE}")
         set(MESH_PATCH_COMMAND patch -p1 -d ${CMAKE_CONFIG_DIR}/../ -i ${MESH_PATCH_FILE})
     else ()
@@ -54,7 +71,7 @@ else ()
     message(WARNING
             "Could not find `patch` executable. \
         Automatic patching of the nRF5 mesh SDK not supported. \
-        See ${PATCH_FILE} for diff to apply.")
+        See ${MESH_PATCH_FILE} for diff to apply.")
 endif (PATCH_EXECUTABLE)
 
 macro(add_download_target name)
@@ -89,7 +106,7 @@ endif()
 
 if(NOT EXISTS ${CMAKE_CONFIG_DIR}/Toolchain.cmake)
     include(ExternalProject)
-    set(nRF5_MESH_SDK_URL "https://www.nordicsemi.com/-/media/Software-and-other-downloads/SDKs/nRF5-SDK-for-Mesh/nrf5SDKforMeshv400src.zip")
+    set(nRF5_MESH_SDK_URL "https://www.nordicsemi.com/-/media/Software-and-other-downloads/SDKs/nRF5-SDK-for-Mesh/nrf5SDKforMeshv${nRF5_MESH_SDK_VERSION}src.zip")
 
     ExternalProject_Add(nRF5_MESH_SDK
             PREFIX "nRF5_mesh_sdk"
@@ -173,7 +190,7 @@ macro(nRF5_setup)
 
     add_link_options(-u _printf_float)
 
-    include(${DIR_OF_nRF5_CMAKE}/includes/secure_bootloader.cmake)
+    include(${nRF5_CMAKE_PATH}/includes/secure_bootloader.cmake)
 
     # adds target for erasing and flashing the board with a softdevice
     add_custom_target(FLASH_SOFTDEVICE ALL
@@ -197,20 +214,20 @@ macro(nRF5_setup)
     endif()
 
     add_custom_target(START_JLINK_ALL ALL
-            COMMAND ${TERMINAL} "${DIR_OF_nRF5_CMAKE}/runJLinkGDBServer"
-            COMMAND ${TERMINAL} "${DIR_OF_nRF5_CMAKE}/runJLinkExe"
+            COMMAND ${TERMINAL} "${nRF5_CMAKE_PATH}/runJLinkGDBServer"
+            COMMAND ${TERMINAL} "${nRF5_CMAKE_PATH}/runJLinkExe"
             COMMAND sleep 2s
-            COMMAND ${TERMINAL} "${DIR_OF_nRF5_CMAKE}/runJLinkRTTClient"
+            COMMAND ${TERMINAL} "${nRF5_CMAKE_PATH}/runJLinkRTTClient"
             COMMENT "started JLink commands"
             )
     add_custom_target(START_JLINK_RTT ALL
-            COMMAND ${TERMINAL} "${DIR_OF_nRF5_CMAKE}/runJLinkExe"
+            COMMAND ${TERMINAL} "${nRF5_CMAKE_PATH}/runJLinkExe"
             COMMAND sleep 2s
-            COMMAND ${TERMINAL} "${DIR_OF_nRF5_CMAKE}/runJLinkRTTClient"
+            COMMAND ${TERMINAL} "${nRF5_CMAKE_PATH}/runJLinkRTTClient"
             COMMENT "started JLink RTT terminal"
             )
     add_custom_target(START_JLINK_GDBSERVER ALL
-            COMMAND ${TERMINAL} "${DIR_OF_nRF5_CMAKE}/runJLinkGDBServer"
+            COMMAND ${TERMINAL} "${nRF5_CMAKE_PATH}/runJLinkGDBServer"
             COMMENT "started JLink GDB server"
             )
 
@@ -323,6 +340,6 @@ function(nRF5_print_size EXECUTABLE_NAME linker_file include_bootloader)
         list(APPEND options -b "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}_bootloader.out")
     endif()
     add_custom_command(TARGET ${target_depend} POST_BUILD
-            COMMAND ${DIR_OF_nRF5_CMAKE}/includes/getSizes -r 65536 -l 524288 -f ${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}.elf ${options}
+            COMMAND ${nRF5_CMAKE_PATH}/includes/getSizes -r 65536 -l 524288 -f ${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}.elf ${options}
             VERBATIM)
 endfunction()

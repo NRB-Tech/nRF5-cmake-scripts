@@ -4,11 +4,10 @@ set(NRF_PROJECT_PATH ${SDK_ROOT}/examples/ble_peripheral/${NRF_PROJECT_NAME})
 set(NRF_PROJECT_DEVICE_PATH ${NRF_PROJECT_PATH}/${BOARD}/${SOFTDEVICE_TYPE})
 
 # you can specify the location of the linker script if desired instead of using a specific file name. Do not include .ld extension.
-string(SUBSTRING ${PLATFORM} 0 5 NRF_FAMILY)
 set(NRF5_LINKER_SCRIPT ${NRF_PROJECT_DEVICE_PATH}/armgcc/${NRF_PROJECT_NAME}_gcc_${NRF_FAMILY})
 
 # DFU requirements
-# List the softdevice versions previously used
+# List the softdevice versions previously used, or use FALSE if no previous softdevices used
 set(PREVIOUS_SOFTDEVICES "s132_6.1.1")
 # Set the location to the DFU private key
 set(PRIVATE_KEY ${CMAKE_CURRENT_SOURCE_DIR}/../keys/dfu_private.key)
