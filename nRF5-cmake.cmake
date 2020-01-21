@@ -17,11 +17,12 @@ if(NOT DEFINED SDK_ROOT)
 endif()
 
 # find programs
-find_program(NRFJPROG nrfjprog)
-find_program(MERGEHEX mergehex)
-find_program(NRFUTIL nrfutil)
+find_program(NRFJPROG nrfjprog DOC "Path to the `nrfjprog` command line executable")
+find_program(MERGEHEX mergehex DOC "Path to the `mergehex` command line executable")
+find_program(NRFUTIL nrfutil DOC "Path to the `nrfutil` command line executable")
+find_program(PATCH_EXECUTABLE patch DOC "Path to `patch` command line executable")
 
-# check if all the necessary tools paths have been provided.
+# check if all the necessary tools paths and variables have been provided.
 
 if (NOT NRFJPROG)
     message(FATAL_ERROR "The path to the nrfjprog utility (NRFJPROG) must be set.")
@@ -35,6 +36,10 @@ if (NOT NRFUTIL)
     message(FATAL_ERROR "The path to the nrfutil utility (NRFUTIL) must be set.")
 endif ()
 
+if(NOT PATCH_EXECUTABLE)
+    message(FATAL_ERROR "The path to the patch utility (PATCH_EXECUTABLE) must be set.")
+endif()
+
 if(NOT IC)
     message(FATAL_ERROR "The chip (IC) must be set, e.g. \"nrf52832\"")
 endif()
@@ -47,38 +52,14 @@ if(NOT SOFTDEVICE_VERSION)
     message(FATAL_ERROR "The softdevice version (SOFTDEVICE_VERSION) must be set, e.g. \"7.0.1\"")
 endif()
 
-set(SOFTDEVICE "${SOFTDEVICE_TYPE}_${SOFTDEVICE_VERSION}" CACHE STRING "${IC} SoftDevice")
-
-string(CONCAT nRF5_LINK_FLAGS
-        "--specs=nosys.specs "  # firmware has no syscall implementation
-        "-lnosys "              # syscalls are empty stubs
-        "-lc"                   # libc with nosys.spec uses newlib-nano
-        )
-
-set(CMAKE_EXE_LINKER_FLAGS "${nRF5_LINK_FLAGS}" CACHE INTERNAL "")
-set(CMAKE_SYSTEM_NAME "Generic")
-set(CMAKE_SYSTEM_PROCESSOR "ARM")
-
 # must be set in file (not macro) scope (in macro would point to parent CMake directory)
 set(nRF5_CMAKE_PATH ${CMAKE_CURRENT_LIST_DIR})
 
-include(${nRF5_CMAKE_PATH}/includes/libraries.cmake)
-
-find_program(PATCH_EXECUTABLE patch
-        DOC "Path to `patch` command line executable")
-
 set(MESH_PATCH_COMMAND "")
 set(MESH_PATCH_FILE "${nRF5_CMAKE_PATH}/sdk/nrf5SDKforMeshv${nRF5_MESH_SDK_VERSION}src.patch")
-if (PATCH_EXECUTABLE)
-    if (EXISTS "${MESH_PATCH_FILE}")
-        set(MESH_PATCH_COMMAND patch -p1 -d ${CMAKE_CONFIG_DIR}/../ -i ${MESH_PATCH_FILE})
-    endif()
-else ()
-    message(WARNING
-            "Could not find `patch` executable. \
-        Automatic patching of the nRF5 mesh SDK not supported. \
-        See ${MESH_PATCH_FILE} for diff to apply.")
-endif (PATCH_EXECUTABLE)
+if (EXISTS "${MESH_PATCH_FILE}")
+    set(MESH_PATCH_COMMAND patch -p1 -d ${CMAKE_CONFIG_DIR}/../ -i ${MESH_PATCH_FILE})
+endif()
 
 macro(add_download_target name)
     if(TARGET download)
@@ -135,6 +116,20 @@ if(TARGET download)
     message(WARNING "Run the 'download' target to download dependencies")
     return()
 endif()
+
+set(SOFTDEVICE "${SOFTDEVICE_TYPE}_${SOFTDEVICE_VERSION}" CACHE STRING "${IC} SoftDevice")
+
+string(CONCAT nRF5_LINK_FLAGS
+        "--specs=nosys.specs "  # firmware has no syscall implementation
+        "-lnosys "              # syscalls are empty stubs
+        "-lc"                   # libc with nosys.spec uses newlib-nano
+        )
+
+set(CMAKE_EXE_LINKER_FLAGS "${nRF5_LINK_FLAGS}" CACHE INTERNAL "")
+set(CMAKE_SYSTEM_NAME "Generic")
+set(CMAKE_SYSTEM_PROCESSOR "ARM")
+
+include(${nRF5_CMAKE_PATH}/includes/libraries.cmake)
 
 # Export compilation commands to .json file (used by clang-complete backends)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
