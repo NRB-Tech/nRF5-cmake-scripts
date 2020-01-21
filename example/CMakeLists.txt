@@ -33,7 +33,7 @@ project(BlinkyExampleProject
 
 # Modify this to set the correct path relative to this file.
 set(nRF5_cmake_path "${CMAKE_SOURCE_DIR}/nRF5-cmake-scripts/nRF5-cmake.cmake")
-if(NOT EXISTS nRF5_cmake_path)
+if(NOT EXISTS "${nRF5_cmake_path}")
     set(nRF5_cmake_path "${CMAKE_SOURCE_DIR}/../nRF5-cmake.cmake")
 endif()
 include("${nRF5_cmake_path}")
