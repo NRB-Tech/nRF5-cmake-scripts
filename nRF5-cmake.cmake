@@ -9,9 +9,10 @@ endif ()
 set(nRF5_SDK_VERSION "nRF5_SDK_16.0.0_98a08e2" CACHE STRING "nRF5 SDK")
 set(nRF5_MESH_SDK_VERSION "400" CACHE STRING "nRF5 Mesh SDK version")
 
-if(NOT DEFINED CMAKE_CONFIG_DIR)
-    set(CMAKE_CONFIG_DIR "${CMAKE_SOURCE_DIR}/toolchains/nRF5/nrf5SDKforMeshv${nRF5_MESH_SDK_VERSION}src/CMake")
+if(NOT DEFINED nRF5_MESH_SOURCE_DIR)
+    set(nRF5_MESH_SOURCE_DIR "${CMAKE_SOURCE_DIR}/toolchains/nRF5/nrf5SDKforMeshv${nRF5_MESH_SDK_VERSION}src")
 endif()
+set(CMAKE_CONFIG_DIR "${nRF5_MESH_SOURCE_DIR}/CMake")
 if(NOT DEFINED SDK_ROOT)
     set(SDK_ROOT "${CMAKE_SOURCE_DIR}/toolchains/nRF5/${nRF5_SDK_VERSION}")
 endif()
@@ -20,7 +21,7 @@ endif()
 find_program(NRFJPROG nrfjprog DOC "Path to the `nrfjprog` command line executable")
 find_program(MERGEHEX mergehex DOC "Path to the `mergehex` command line executable")
 find_program(NRFUTIL nrfutil DOC "Path to the `nrfutil` command line executable")
-find_program(PATCH_EXECUTABLE patch DOC "Path to `patch` command line executable")
+find_program(GIT git DOC "Path to `git` command line executable")
 
 # check if all the necessary tools paths and variables have been provided.
 
@@ -36,8 +37,8 @@ if (NOT NRFUTIL)
     message(FATAL_ERROR "The path to the nrfutil utility (NRFUTIL) must be set.")
 endif ()
 
-if(NOT PATCH_EXECUTABLE)
-    message(FATAL_ERROR "The path to the patch utility (PATCH_EXECUTABLE) must be set.")
+if(NOT GIT)
+    message(FATAL_ERROR "The path to the git utility (GIT) must be set.")
 endif()
 
 if(NOT IC)
@@ -55,10 +56,17 @@ endif()
 # must be set in file (not macro) scope (in macro would point to parent CMake directory)
 set(nRF5_CMAKE_PATH ${CMAKE_CURRENT_LIST_DIR})
 
+# must be set before project, otherwise causes linking issues
+set(CMAKE_SYSTEM_NAME "Generic")
+set(CMAKE_SYSTEM_PROCESSOR "ARM")
+
+# prevent mesh SDK warning
+set(PATCH_EXECUTABLE "patch")
+
 set(MESH_PATCH_COMMAND "")
 set(MESH_PATCH_FILE "${nRF5_CMAKE_PATH}/sdk/nrf5SDKforMeshv${nRF5_MESH_SDK_VERSION}src.patch")
 if (EXISTS "${MESH_PATCH_FILE}")
-    set(MESH_PATCH_COMMAND patch -p1 -d ${CMAKE_CONFIG_DIR}/../ -i ${MESH_PATCH_FILE})
+    set(MESH_PATCH_COMMAND ${GIT} -C "${nRF5_MESH_SOURCE_DIR}" apply --ignore-space-change --ignore-whitespace --whitespace=nowarn ${MESH_PATCH_FILE})
 endif()
 
 macro(add_download_target name)
@@ -69,76 +77,74 @@ macro(add_download_target name)
     endif()
 endmacro()
 
-if(NOT EXISTS ${SDK_ROOT}/license.txt)
-    include(ExternalProject)
-
-    string(REGEX REPLACE "(nRF5)([1]?_SDK_)([0-9]*).*" "\\1\\2v\\3.x.x" SDK_DIR ${nRF5_SDK_VERSION})
-    set(nRF5_SDK_URL "https://developer.nordicsemi.com/nRF5_SDK/${SDK_DIR}/${nRF5_SDK_VERSION}.zip")
-
-    ExternalProject_Add(nRF5_SDK
-            PREFIX "${nRF5_SDK_VERSION}"
-            TMP_DIR "${CMAKE_CURRENT_BINARY_DIR}/${nRF5_SDK_VERSION}"
-            SOURCE_DIR "${SDK_ROOT}/"
-            DOWNLOAD_DIR "${SDK_ROOT}/zip"
-            DOWNLOAD_NAME "${nRF5_SDK_VERSION}.zip"
-            URL ${nRF5_SDK_URL}
-            # No build or configure commands
-            CONFIGURE_COMMAND ""
-            BUILD_COMMAND ""
-            INSTALL_COMMAND ""
-            LOG_DOWNLOAD ON
-            EXCLUDE_FROM_ALL ON)
-    add_download_target(nRF5_SDK)
-endif()
-
-if(NOT EXISTS ${CMAKE_CONFIG_DIR}/Toolchain.cmake)
-    include(ExternalProject)
-    set(nRF5_MESH_SDK_URL "https://www.nordicsemi.com/-/media/Software-and-other-downloads/SDKs/nRF5-SDK-for-Mesh/nrf5SDKforMeshv${nRF5_MESH_SDK_VERSION}src.zip")
-
-    ExternalProject_Add(nRF5_MESH_SDK
-            PREFIX "nRF5_mesh_sdk"
-            TMP_DIR "${CMAKE_CURRENT_BINARY_DIR}/nRF5_mesh_sdk"
-            SOURCE_DIR "${CMAKE_CONFIG_DIR}/../"
-            DOWNLOAD_DIR "${CMAKE_CURRENT_BINARY_DIR}/nRF5_mesh_sdk/zip"
-            DOWNLOAD_NAME "meshsdk.zip"
-            URL ${nRF5_MESH_SDK_URL}
-            PATCH_COMMAND ${MESH_PATCH_COMMAND}
-            # No build or configure commands
-            CONFIGURE_COMMAND ""
-            BUILD_COMMAND ""
-            INSTALL_COMMAND ""
-            LOG_DOWNLOAD ON
-            EXCLUDE_FROM_ALL ON)
-    add_download_target(nRF5_MESH_SDK)
-endif()
-
-if(TARGET download)
-    message(WARNING "Run the 'download' target to download dependencies")
-    return()
-endif()
-
 set(SOFTDEVICE "${SOFTDEVICE_TYPE}_${SOFTDEVICE_VERSION}" CACHE STRING "${IC} SoftDevice")
-
-include(${nRF5_CMAKE_PATH}/includes/libraries.cmake)
 
 # Export compilation commands to .json file (used by clang-complete backends)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
-
-# Needed tools for generating documentation and serial PyACI
-find_package(PythonInterp)
-find_package(Doxygen)
-find_program(DOT_EXECUTABLE "dot" PATHS ENV PATH)
-find_program(MSCGEN_EXECUTABLE "mscgen" PATHS ENV PATH)
-
-if (NOT BUILD_HOST)
-    include("${CMAKE_CONFIG_DIR}/Nrfjprog.cmake")
-endif ()
 
 macro(nRF5_setup)
     if(nRF5_setup_complete)
         return()
     endif()
     set(nRF5_setup_complete TRUE)
+
+    if(NOT EXISTS ${SDK_ROOT}/license.txt)
+        include(ExternalProject)
+
+        string(REGEX REPLACE "(nRF5)([1]?_SDK_)([0-9]*).*" "\\1\\2v\\3.x.x" SDK_DIR ${nRF5_SDK_VERSION})
+        set(nRF5_SDK_URL "https://developer.nordicsemi.com/nRF5_SDK/${SDK_DIR}/${nRF5_SDK_VERSION}.zip")
+
+        ExternalProject_Add(nRF5_SDK
+                PREFIX "${nRF5_SDK_VERSION}"
+                TMP_DIR "${CMAKE_CURRENT_BINARY_DIR}/${nRF5_SDK_VERSION}"
+                SOURCE_DIR "${SDK_ROOT}/"
+                DOWNLOAD_DIR "${CMAKE_CURRENT_BINARY_DIR}/zip"
+                DOWNLOAD_NAME "${nRF5_SDK_VERSION}.zip"
+                URL ${nRF5_SDK_URL}
+                # No build or configure commands
+                CONFIGURE_COMMAND ""
+                BUILD_COMMAND ""
+                INSTALL_COMMAND ""
+                LOG_DOWNLOAD ON
+                EXCLUDE_FROM_ALL ON)
+        add_download_target(nRF5_SDK)
+    endif()
+
+    if(NOT EXISTS ${CMAKE_CONFIG_DIR}/Toolchain.cmake)
+        include(ExternalProject)
+        set(nRF5_MESH_SDK_URL "https://www.nordicsemi.com/-/media/Software-and-other-downloads/SDKs/nRF5-SDK-for-Mesh/nrf5SDKforMeshv${nRF5_MESH_SDK_VERSION}src.zip")
+
+        ExternalProject_Add(nRF5_MESH_SDK
+                PREFIX "nRF5_mesh_sdk"
+                TMP_DIR "${CMAKE_CURRENT_BINARY_DIR}/nRF5_mesh_sdk"
+                SOURCE_DIR "${nRF5_MESH_SOURCE_DIR}"
+                DOWNLOAD_DIR "${CMAKE_CURRENT_BINARY_DIR}/zip"
+                DOWNLOAD_NAME "meshsdk.zip"
+                URL ${nRF5_MESH_SDK_URL}
+                PATCH_COMMAND ${MESH_PATCH_COMMAND}
+                # No build or configure commands
+                CONFIGURE_COMMAND ""
+                BUILD_COMMAND ""
+                INSTALL_COMMAND ""
+                LOG_DOWNLOAD ON
+                EXCLUDE_FROM_ALL ON)
+        add_download_target(nRF5_MESH_SDK)
+    endif()
+
+    if(TARGET download)
+        message(WARNING "Run the 'download' target to download dependencies")
+        return()
+    endif()
+
+    # Needed tools for generating documentation and serial PyACI
+    find_package(PythonInterp)
+    find_package(Doxygen)
+    find_program(DOT_EXECUTABLE "dot" PATHS ENV PATH)
+    find_program(MSCGEN_EXECUTABLE "mscgen" PATHS ENV PATH)
+
+    if (NOT BUILD_HOST)
+        include("${CMAKE_CONFIG_DIR}/Nrfjprog.cmake")
+    endif ()
 
     include("${CMAKE_CONFIG_DIR}/Toolchain.cmake")
     include("${CMAKE_CONFIG_DIR}/Platform.cmake")
@@ -155,6 +161,8 @@ macro(nRF5_setup)
     include("${CMAKE_CONFIG_DIR}/platform/${PLATFORM}.cmake")
     include("${CMAKE_CONFIG_DIR}/softdevice/${SOFTDEVICE}.cmake")
     include("${CMAKE_CONFIG_DIR}/board/${BOARD}.cmake")
+
+    include(${nRF5_CMAKE_PATH}/includes/libraries.cmake)
 
     string(SUBSTRING ${PLATFORM} 0 5 NRF_FAMILY)
 
