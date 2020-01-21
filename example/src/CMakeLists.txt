@@ -68,5 +68,7 @@ nRF5_addDFU_BL_SD_APP_PkgTarget(${target} ${DFU_VERSION_STRING} ${PRIVATE_KEY} $
 # Add the App package target
 nRF5_addDFU_APP_PkgTarget(${target} ${DFU_VERSION_STRING} ${PRIVATE_KEY} ${PREVIOUS_SOFTDEVICES} ${APP_VALIDATION_TYPE})
 
-# print the size of consumed RAM and flash
-nRF5_print_size(${target} ${NRF5_LINKER_SCRIPT} TRUE)
+# print the size of consumed RAM and flash - does not yet work on Windows
+if(NOT ${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
+    nRF5_print_size(${target} ${NRF5_LINKER_SCRIPT} TRUE)
+endif()
