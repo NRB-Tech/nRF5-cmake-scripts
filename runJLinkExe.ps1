@@ -1,0 +1,1 @@
+& "${Env:ProgramFiles(x86)}\SEGGER\JLink\JLink.exe" -device nrf52 -if swd -speed 4000 -autoconnect 1 -RTTTelnetPort 19022

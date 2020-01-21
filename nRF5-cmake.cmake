@@ -198,37 +198,47 @@ macro(nRF5_setup)
             COMMAND sleep 0.5s
             COMMAND ${NRFJPROG} --reset -f nrf52
             COMMENT "flashing SoftDevice"
+            VERBATIM
             )
 
     add_custom_target(FLASH_ERASE ALL
             COMMAND ${NRFJPROG} --eraseall -f nrf52
             COMMENT "erasing flashing"
+            VERBATIM
             )
 
     if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Darwin")
         set(TERMINAL "open")
+        set(COMMAND_SUFFIX "")
     elseif(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
-        set(TERMINAL "sh")
+        set(TERMINAL cmd /c start powershell -noexit -ExecutionPolicy Bypass -File)
+        set(COMMAND_SUFFIX ".ps1")
     else()
         set(TERMINAL "gnome-terminal")
+        set(COMMAND_SUFFIX "")
     endif()
 
     add_custom_target(START_JLINK_ALL ALL
-            COMMAND ${TERMINAL} "${nRF5_CMAKE_PATH}/runJLinkGDBServer"
-            COMMAND ${TERMINAL} "${nRF5_CMAKE_PATH}/runJLinkExe"
-            COMMAND sleep 2s
-            COMMAND ${TERMINAL} "${nRF5_CMAKE_PATH}/runJLinkRTTClient"
+            COMMAND ${TERMINAL} "${nRF5_CMAKE_PATH}/runJLinkGDBServer${COMMAND_SUFFIX}"
+            COMMAND ${TERMINAL} "${nRF5_CMAKE_PATH}/runJLinkExe${COMMAND_SUFFIX}"
+            COMMAND cmake -E sleep 2
+            COMMAND ${TERMINAL} "${nRF5_CMAKE_PATH}/runJLinkRTTClient${COMMAND_SUFFIX}"
             COMMENT "started JLink commands"
+            VERBATIM
             )
     add_custom_target(START_JLINK_RTT ALL
-            COMMAND ${TERMINAL} "${nRF5_CMAKE_PATH}/runJLinkExe"
-            COMMAND sleep 2s
-            COMMAND ${TERMINAL} "${nRF5_CMAKE_PATH}/runJLinkRTTClient"
+            COMMAND ${TERMINAL} "${nRF5_CMAKE_PATH}/runJLinkExe${COMMAND_SUFFIX}"
+            COMMAND cmake -E sleep 2
+            COMMAND ${TERMINAL} "${nRF5_CMAKE_PATH}/runJLinkRTTClient${COMMAND_SUFFIX}"
             COMMENT "started JLink RTT terminal"
+            VERBATIM
             )
     add_custom_target(START_JLINK_GDBSERVER ALL
-            COMMAND ${TERMINAL} "${nRF5_CMAKE_PATH}/runJLinkGDBServer"
+            COMMAND ${TERMINAL} "${nRF5_CMAKE_PATH}/runJLinkExe${COMMAND_SUFFIX}"
+            COMMAND cmake -E sleep 2
+            COMMAND ${TERMINAL} "${nRF5_CMAKE_PATH}/runJLinkGDBServer${COMMAND_SUFFIX}"
             COMMENT "started JLink GDB server"
+            VERBATIM
             )
 
 endmacro()
