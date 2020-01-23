@@ -1,1 +1,7 @@
-& "${Env:ProgramFiles(x86)}\SEGGER\JLink\JLinkRTTClient" -RTTTelnetPort 19022
+param (
+    [string]$JLinkPath,
+    [string]$JLinkGDBServerPath,
+    [string]$JLinkRTTClientPath
+)
+
+& "$JLinkRTTClientPath" -RTTTelnetPort 19022

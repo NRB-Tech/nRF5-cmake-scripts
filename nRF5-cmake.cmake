@@ -22,8 +22,26 @@ find_program(NRFJPROG nrfjprog DOC "Path to the `nrfjprog` command line executab
 find_program(MERGEHEX mergehex DOC "Path to the `mergehex` command line executable")
 find_program(NRFUTIL nrfutil DOC "Path to the `nrfutil` command line executable")
 find_program(GIT git DOC "Path to `git` command line executable")
+if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
+    find_program(JLINK JLink DOC "Path to `JLink.exe` command line executable")
+    find_program(JLINKGDBSERVER JLinkGDBServerCL DOC "Path to `JLinkGDBServerCL.exe` command line executable")
+    find_program(JLINKRTTCLIENT JLinkRTTClient DOC "Path to `JLinkRTTClient.exe` command line executable")
+    if(NOT JLINK)
+        set(JLINK "$ENV{ProgramFiles\(x86\)}/SEGGER/JLink/JLink.exe")
+    endif()
+    if(NOT JLINKGDBSERVER)
+        set(JLINKGDBSERVER "$ENV{ProgramFiles\(x86\)}/SEGGER/JLink/JLinkGDBServerCL.exe")
+    endif()
+    if(NOT JLINKRTTCLIENT)
+        set(JLINKRTTCLIENT "$ENV{ProgramFiles\(x86\)}/SEGGER/JLink/JLinkRTTClient.exe")
+    endif()
+else()
+    find_program(JLINK JLinkExe DOC "Path to `JLinkExe` command line executable")
+    find_program(JLINKGDBSERVER JLinkGDBServer DOC "Path to `JLinkGDBServer` command line executable")
+    find_program(JLINKRTTCLIENT JLinkRTTClient DOC "Path to `JLinkRTTClient` command line executable")
+endif ()
 
-# check if all the necessary tools paths and variables have been provided.
+# check if all the necessary tools paths have been provided
 
 if (NOT NRFJPROG)
     message(FATAL_ERROR "The path to the nrfjprog utility (NRFJPROG) must be set.")
@@ -40,6 +58,8 @@ endif ()
 if(NOT GIT)
     message(FATAL_ERROR "The path to the git utility (GIT) must be set.")
 endif()
+
+# Check if all the necessary variables have been set
 
 if(NOT IC)
     message(FATAL_ERROR "The chip (IC) must be set, e.g. \"nrf52832\"")
@@ -213,35 +233,49 @@ macro(nRF5_setup)
         set(COMMAND_SUFFIX "")
     elseif(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
         set(TERMINAL cmd /c start powershell -noexit -ExecutionPolicy Bypass -File)
+        set(POST_OPTIONS -JLinkPath ${JLINK} -JLinkGDBServerPath ${JLINKGDBSERVER} -JLinkRTTClientPath ${JLINKRTTCLIENT})
         set(COMMAND_SUFFIX ".ps1")
     else()
         set(TERMINAL "gnome-terminal")
         set(COMMAND_SUFFIX "")
     endif()
 
-    add_custom_target(START_JLINK_ALL ALL
-            COMMAND ${TERMINAL} "${nRF5_CMAKE_PATH}/runJLinkGDBServer${COMMAND_SUFFIX}"
-            COMMAND ${TERMINAL} "${nRF5_CMAKE_PATH}/runJLinkExe${COMMAND_SUFFIX}"
-            COMMAND cmake -E sleep 2
-            COMMAND ${TERMINAL} "${nRF5_CMAKE_PATH}/runJLinkRTTClient${COMMAND_SUFFIX}"
-            COMMENT "started JLink commands"
-            VERBATIM
-            )
-    add_custom_target(START_JLINK_RTT ALL
-            COMMAND ${TERMINAL} "${nRF5_CMAKE_PATH}/runJLinkExe${COMMAND_SUFFIX}"
-            COMMAND cmake -E sleep 2
-            COMMAND ${TERMINAL} "${nRF5_CMAKE_PATH}/runJLinkRTTClient${COMMAND_SUFFIX}"
-            COMMENT "started JLink RTT terminal"
-            VERBATIM
-            )
-    add_custom_target(START_JLINK_GDBSERVER ALL
-            COMMAND ${TERMINAL} "${nRF5_CMAKE_PATH}/runJLinkExe${COMMAND_SUFFIX}"
-            COMMAND cmake -E sleep 2
-            COMMAND ${TERMINAL} "${nRF5_CMAKE_PATH}/runJLinkGDBServer${COMMAND_SUFFIX}"
-            COMMENT "started JLink GDB server"
-            VERBATIM
-            )
-
+    if(EXISTS "${JLINK}")
+        if(EXISTS "${JLINKGDBSERVER}" AND EXISTS "${JLINKRTTCLIENT}")
+            add_custom_target(START_JLINK_ALL ALL
+                    COMMAND ${TERMINAL} "${nRF5_CMAKE_PATH}/runJLinkGDBServer${COMMAND_SUFFIX}" ${POST_OPTIONS}
+                    COMMAND ${TERMINAL} "${nRF5_CMAKE_PATH}/runJLinkExe${COMMAND_SUFFIX}" ${POST_OPTIONS}
+                    COMMAND cmake -E sleep 2
+                    COMMAND ${TERMINAL} "${nRF5_CMAKE_PATH}/runJLinkRTTClient${COMMAND_SUFFIX}" ${POST_OPTIONS}
+                    COMMENT "started JLink commands"
+                    VERBATIM
+                    )
+        endif()
+        if(EXISTS "${JLINKRTTCLIENT}")
+            add_custom_target(START_JLINK_RTT ALL
+                    COMMAND ${TERMINAL} "${nRF5_CMAKE_PATH}/runJLinkExe${COMMAND_SUFFIX}" ${POST_OPTIONS}
+                    COMMAND cmake -E sleep 2
+                    COMMAND ${TERMINAL} "${nRF5_CMAKE_PATH}/runJLinkRTTClient${COMMAND_SUFFIX}" ${POST_OPTIONS}
+                    COMMENT "started JLink RTT terminal"
+                    VERBATIM
+                    )
+        else()
+            message(WARNING "The path to the JLinkRTTClient utility (JLINKRTTCLIENT) is not set or does not exist, so START_JLINK_RTT and START_JLINK_ALL targets will not be available")
+        endif()
+        if(EXISTS "${JLINKGDBSERVER}")
+            add_custom_target(START_JLINK_GDBSERVER ALL
+                    COMMAND ${TERMINAL} "${nRF5_CMAKE_PATH}/runJLinkExe${COMMAND_SUFFIX}" ${POST_OPTIONS}
+                    COMMAND cmake -E sleep 2
+                    COMMAND ${TERMINAL} "${nRF5_CMAKE_PATH}/runJLinkGDBServer${COMMAND_SUFFIX}" ${POST_OPTIONS}
+                    COMMENT "started JLink GDB server"
+                    VERBATIM
+                    )
+        else()
+            message(WARNING "The path to the JLinkGDBServer utility (JLINKGDBSERVER) is not set or does not exist, so START_JLINK_GDBSERVER and START_JLINK_ALL targets will not be available")
+        endif()
+    else()
+        message(WARNING "The path to the JLink utility (JLINK) is not set or does not exist, so START_JLINK_* targets will not be available")
+    endif()
 endmacro()
 
 function(nRF5_addFlashTarget targetName hexFile)
