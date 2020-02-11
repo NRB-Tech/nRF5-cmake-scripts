@@ -148,108 +148,49 @@ macro(nRF5_addMBEDTLS SDK_CONFIG_INCLUDE_DIR)
     endforeach()
 endmacro()
 
-macro(nRF5_addCryptoCommon)
-    list(APPEND SOURCE_FILES
-            "${SDK_ROOT}/components/libraries/crypto/nrf_crypto_init.c"
-            "${SDK_ROOT}/components/libraries/crypto/nrf_crypto_shared.c"
-            )
-endmacro()
-
-macro(nRF5_addAES BACKEND)
-    nRF5_addCryptoCommon()
+macro(nRF5_addCryptoBackend TYPE BACKEND)
+    if(${TYPE} STREQUAL "rng")
+        nRF5_addStackInfo()
+    endif()
     list(APPEND INCLUDE_DIRS
             "${SDK_ROOT}/components/libraries/crypto"
             # must include all headers
             "${SDK_ROOT}/components/libraries/crypto/backend/cc310"
-            "${SDK_ROOT}/components/libraries/crypto/backend/mbedtls"
-            )
-
-    list(APPEND SOURCE_FILES
-            "${SDK_ROOT}/components/libraries/crypto/backend/${BACKEND}/${BACKEND}_backend_init.c"
-            "${SDK_ROOT}/components/libraries/crypto/backend/${BACKEND}/${BACKEND}_backend_aes.c"
-            "${SDK_ROOT}/components/libraries/crypto/nrf_crypto_aes_shared.c"
-            "${SDK_ROOT}/components/libraries/crypto/nrf_crypto_aes.c"
-            )
-endmacro()
-
-macro(nRF5_addAEAD BACKEND)
-    nRF5_addCryptoCommon()
-    list(APPEND INCLUDE_DIRS
-            "${SDK_ROOT}/components/libraries/crypto"
-            # must include all headers
-            "${SDK_ROOT}/components/libraries/crypto/backend/cc310"
+            "${SDK_ROOT}/components/libraries/crypto/backend/cc310_bl"
             "${SDK_ROOT}/components/libraries/crypto/backend/cifra"
             "${SDK_ROOT}/components/libraries/crypto/backend/mbedtls"
-            "${SDK_ROOT}/components/libraries/crypto/backend/oberon"
-            )
-
-    list(APPEND SOURCE_FILES
-            "${SDK_ROOT}/components/libraries/crypto/backend/${BACKEND}/${BACKEND}_backend_init.c"
-            "${SDK_ROOT}/components/libraries/crypto/backend/${BACKEND}/${BACKEND}_backend_aes_aead.c"
-            "${SDK_ROOT}/components/libraries/crypto/nrf_crypto_aead.c"
-            )
-endmacro()
-
-macro(nRF5_addHash BACKEND)
-    nRF5_addCryptoCommon()
-    list(APPEND INCLUDE_DIRS
-            "${SDK_ROOT}/components/libraries/crypto"
-            # must include all headers
-            "${SDK_ROOT}/components/libraries/crypto/backend/cc310"
-            "${SDK_ROOT}/components/libraries/crypto/backend/mbedtls"
-            "${SDK_ROOT}/components/libraries/crypto/backend/oberon"
-            "${SDK_ROOT}/components/libraries/crypto/backend/cc310_bl"
-            "${SDK_ROOT}/components/libraries/crypto/backend/nrf_sw"
-            )
-
-    list(APPEND SOURCE_FILES
-            "${SDK_ROOT}/components/libraries/crypto/backend/${BACKEND}/${BACKEND}_backend_init.c"
-            "${SDK_ROOT}/components/libraries/crypto/backend/${BACKEND}/${BACKEND}_backend_hash.c"
-            "${SDK_ROOT}/components/libraries/crypto/nrf_crypto_hash.c"
-            )
-endmacro()
-
-macro(nRF5_addRNG BACKEND)
-    nRF5_addCryptoCommon()
-    nRF5_addStackInfo()
-    list(APPEND INCLUDE_DIRS
-            "${SDK_ROOT}/components/libraries/crypto"
-            # must include all headers
-            "${SDK_ROOT}/components/libraries/crypto/backend/cc310"
-            "${SDK_ROOT}/components/libraries/crypto/backend/optiga"
+            "${SDK_ROOT}/components/libraries/crypto/backend/micro_ecc"
             "${SDK_ROOT}/components/libraries/crypto/backend/nrf_hw"
+            "${SDK_ROOT}/components/libraries/crypto/backend/nrf_sw"
+            "${SDK_ROOT}/components/libraries/crypto/backend/oberon"
+            "${SDK_ROOT}/components/libraries/crypto/backend/optiga"
             )
 
-    list(APPEND SOURCE_FILES
-            "${SDK_ROOT}/components/libraries/crypto/nrf_crypto_rng.c"
-            )
-    if(${BACKEND} STREQUAL "nrf_hw_mbedtls")
+    if(${BACKEND} STREQUAL "nrf_hw_mbedtls" AND ${TYPE} STREQUAL "rng")
         list(APPEND SOURCE_FILES
                 "${SDK_ROOT}/components/libraries/crypto/backend/nrf_hw/nrf_hw_backend_rng_mbedtls.c"
                 "${SDK_ROOT}/components/libraries/crypto/backend/nrf_hw/nrf_hw_backend_init.c"
                 )
     else()
-        list(APPEND SOURCE_FILES
-                "${SDK_ROOT}/components/libraries/crypto/backend/${BACKEND}/${BACKEND}_backend_rng.c"
-                )
+        if(EXISTS "${SDK_ROOT}/components/libraries/crypto/backend/${BACKEND}/${BACKEND}_backend_init.c")
+            list(APPEND SOURCE_FILES "${SDK_ROOT}/components/libraries/crypto/backend/${BACKEND}/${BACKEND}_backend_init.c")
+        endif()
+        if(${TYPE} STREQUAL "aead")
+            list(APPEND SOURCE_FILES "${SDK_ROOT}/components/libraries/crypto/backend/${BACKEND}/${BACKEND}_backend_aes_aead.c")
+        else()
+            list(APPEND SOURCE_FILES "${SDK_ROOT}/components/libraries/crypto/backend/${BACKEND}/${BACKEND}_backend_${TYPE}.c")
+        endif()
     endif()
-endmacro()
-
-macro(nRF5_addHMAC BACKEND)
-    nRF5_addCryptoCommon()
-    list(APPEND INCLUDE_DIRS
-            "${SDK_ROOT}/components/libraries/crypto"
-            # must include all headers
-            "${SDK_ROOT}/components/libraries/crypto/backend/cc310"
-            "${SDK_ROOT}/components/libraries/crypto/backend/mbedtls"
-            "${SDK_ROOT}/components/libraries/crypto/backend/oberon"
-            )
 
     list(APPEND SOURCE_FILES
-            "${SDK_ROOT}/components/libraries/crypto/backend/${BACKEND}/${BACKEND}_backend_init.c"
-            "${SDK_ROOT}/components/libraries/crypto/backend/${BACKEND}/${BACKEND}_backend_hmac.c"
-            "${SDK_ROOT}/components/libraries/crypto/nrf_crypto_hmac.c"
+            "${SDK_ROOT}/components/libraries/crypto/nrf_crypto_${TYPE}.c"
+            "${SDK_ROOT}/components/libraries/crypto/nrf_crypto_init.c"
+            "${SDK_ROOT}/components/libraries/crypto/nrf_crypto_shared.c"
             )
+    if(EXISTS "${SDK_ROOT}/components/libraries/crypto/nrf_crypto_${TYPE}_shared.c")
+        list(APPEND SOURCE_FILES "${SDK_ROOT}/components/libraries/crypto/nrf_crypto_${TYPE}_shared.c")
+    endif()
+
 endmacro()
 
 # adds dynamic memory manager
