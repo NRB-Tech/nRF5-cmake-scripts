@@ -124,6 +124,7 @@ endmacro()
 
 macro(nRF5_addHWRNGLegacy)
     nRF5_addHWRNG()
+    nRF5_addQueue()
     list(APPEND INCLUDE_DIRS
             "${SDK_ROOT}/integration/nrfx/legacy"
             )
@@ -133,19 +134,26 @@ macro(nRF5_addHWRNGLegacy)
             )
 endmacro()
 
-macro(nRF5_addMBEDTLS SDK_CONFIG_INCLUDE_DIR)
-    if(TARGET mbedtls)
-        return()
+macro(nRF5_includeMBEDTLS SDK_CONFIG_INCLUDE_DIR)
+    if(NOT TARGET mbedtls)
+        set(USE_STATIC_MBEDTLS_LIBRARY 1)
+        set(ENABLE_TESTING OFF)
+        set(ENABLE_PROGRAMS OFF)
+        set(CMAKE_POLICY_DEFAULT_CMP0048 NEW)
+        set(CMAKE_POLICY_DEFAULT_CMP0077 NEW)
+        add_subdirectory("${SDK_ROOT}/external/mbedtls" mbedtls)
+        # other targets link mbedcrypto and def needs to be public so only needs defining on this target
+        target_compile_definitions(mbedcrypto PUBLIC MBEDTLS_CONFIG_FILE="${SDK_ROOT}/external/nrf_tls/mbedtls/nrf_crypto/config/nrf_crypto_mbedtls_config.h")
+        foreach(target mbedtls mbedx509 mbedcrypto)
+            target_include_directories(${target} PRIVATE ${SDK_CONFIG_INCLUDE_DIR})
+        endforeach()
     endif()
-    set(USE_STATIC_MBEDTLS_LIBRARY 1)
-    set(ENABLE_TESTING OFF)
-    set(ENABLE_PROGRAMS OFF)
-    add_subdirectory("${SDK_ROOT}/external/mbedtls" mbedtls)
-    # other targets link mbedcrypto and def needs to be public so only needs defining on this target
-    target_compile_definitions(mbedcrypto PUBLIC MBEDTLS_CONFIG_FILE="${SDK_ROOT}/external/nrf_tls/mbedtls/nrf_crypto/config/nrf_crypto_mbedtls_config.h")
-    foreach(target mbedtls mbedx509 mbedcrypto)
-        target_include_directories(${target} PRIVATE ${SDK_CONFIG_INCLUDE_DIR})
-    endforeach()
+endmacro()
+
+# LIB_TYPE is "tls", "x509", or "crypto". x509 contains crypto, and tls contains x509.
+macro(nRF5_addMBED target LIB_TYPE)
+    target_link_libraries(${target} PUBLIC mbed${LIB_TYPE})
+    target_include_directories(${target} PRIVATE "${SDK_ROOT}/external/mbedtls/include")
 endmacro()
 
 macro(nRF5_addCryptoBackend TYPE BACKEND)
