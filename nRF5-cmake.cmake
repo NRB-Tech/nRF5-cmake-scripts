@@ -341,6 +341,18 @@ function(nRF5_addBootloaderMergeTarget EXECUTABLE_NAME VERSION_STRING PRIVATE_KE
             VERBATIM)
 endfunction()
 
+function(nRF5_addBootloaderOnlyTarget PRIVATE_KEY PREVIOUS_SOFTDEVICES SD_VALIDATION BOOTLOADER_VERSION PUBLIC_KEY_C_PATH BUILD_FLAGS)
+    nRF5_addSecureBootloader(generic ${PUBLIC_KEY_C_PATH} ${BUILD_FLAGS})
+    set(OP_FILE "${CMAKE_CURRENT_BINARY_DIR}/generic_bl_sd.hex")
+    add_custom_target(generic_bl_sd DEPENDS "${OP_FILE}")
+    add_custom_command(OUTPUT "${OP_FILE}"
+            COMMAND ${NRFUTIL} settings generate --family ${BL_OPT_FAMILY} --bootloader-version ${BOOTLOADER_VERSION} --bl-settings-version 2 --softdevice "${${SOFTDEVICE}_HEX_FILE}" --sd-boot-validation ${SD_VALIDATION} --key-file "${PRIVATE_KEY}" "${CMAKE_CURRENT_BINARY_DIR}/generic_bootloader_setting.hex"
+            COMMAND ${MERGEHEX} -m ${${SOFTDEVICE}_HEX_FILE} "${CMAKE_CURRENT_BINARY_DIR}/generic_bootloader.hex" "${CMAKE_CURRENT_BINARY_DIR}/generic_bootloader_setting.hex" -o "${OP_FILE}"
+            DEPENDS secure_bootloader_generic
+            DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/generic_bootloader.hex"
+            VERBATIM)
+endfunction()
+
 function(_addDFUPackageTarget INCLUDE_BL_SD EXECUTABLE_NAME VERSION_STRING PRIVATE_KEY PREVIOUS_SOFTDEVICES APP_VALIDATION SD_VALIDATION BOOTLOADER_VERSION)
     if(NOT TARGET secure_bootloader_${EXECUTABLE_NAME})
         message(FATAL_ERROR "You must call nRF5_addSecureBootloader and provide the public key before calling _nRF5_addDFUPackageTarget")
