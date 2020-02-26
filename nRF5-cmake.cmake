@@ -237,7 +237,7 @@ macro(nRF5_setup)
         set(POST_OPTIONS -JLinkPath ${JLINK} -JLinkGDBServerPath ${JLINKGDBSERVER} -JLinkRTTClientPath ${JLINKRTTCLIENT})
         set(COMMAND_SUFFIX ".ps1")
     else()
-        set(TERMINAL "gnome-terminal")
+        set(TERMINAL "gnome-terminal" --)
         set(COMMAND_SUFFIX "")
     endif()
 
