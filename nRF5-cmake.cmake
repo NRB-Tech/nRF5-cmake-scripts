@@ -331,25 +331,27 @@ function(nRF5_addBootloaderMergeTarget EXECUTABLE_NAME VERSION_STRING PRIVATE_KE
     endif()
     nRF5_get_BL_OPT_SD_REQ(${PREVIOUS_SOFTDEVICES})
     set(OP_FILE "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}_bl_merged.hex")
+    set(BOOTLOADER_HEX "${SECURE_BOOTLOADER_SRC_DIR}/_build_${EXECUTABLE_NAME}/bootloader.hex")
     add_custom_target(bl_merge_${EXECUTABLE_NAME} DEPENDS "${OP_FILE}")
     add_custom_command(OUTPUT "${OP_FILE}"
             COMMAND ${NRFUTIL} settings generate --family ${BL_OPT_FAMILY} --application "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}.hex" --application-version-string "${VERSION_STRING}" --app-boot-validation ${APP_VALIDATION} --bootloader-version ${BOOTLOADER_VERSION} --bl-settings-version 2 --softdevice "${${SOFTDEVICE}_HEX_FILE}" --sd-boot-validation ${SD_VALIDATION} --key-file "${PRIVATE_KEY}" "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}_bootloader_setting.hex"
-            COMMAND ${MERGEHEX} -m "${CMAKE_CURRENT_BINARY_DIR}/bootloader_${EXECUTABLE_NAME}/bootloader.hex" "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}_bootloader_setting.hex" "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}_merged.hex" -o "${OP_FILE}"
+            COMMAND ${MERGEHEX} -m ${BOOTLOADER_HEX} "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}_bootloader_setting.hex" "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}_merged.hex" -o "${OP_FILE}"
             DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}_merged.hex"
             DEPENDS secure_bootloader_${EXECUTABLE_NAME}
-            DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/bootloader_${EXECUTABLE_NAME}/bootloader.hex"
+            DEPENDS "${BOOTLOADER_HEX}"
             VERBATIM)
 endfunction()
 
 function(nRF5_addBootloaderOnlyTarget PRIVATE_KEY PREVIOUS_SOFTDEVICES SD_VALIDATION BOOTLOADER_VERSION PUBLIC_KEY_C_PATH BUILD_FLAGS)
     nRF5_addSecureBootloader(generic ${PUBLIC_KEY_C_PATH} ${BUILD_FLAGS})
     set(OP_FILE "${CMAKE_CURRENT_BINARY_DIR}/generic_bl_sd.hex")
+    set(BOOTLOADER_HEX "${SECURE_BOOTLOADER_SRC_DIR}/_build_generic/bootloader.hex")
     add_custom_target(generic_bl_sd DEPENDS "${OP_FILE}")
     add_custom_command(OUTPUT "${OP_FILE}"
             COMMAND ${NRFUTIL} settings generate --family ${BL_OPT_FAMILY} --bootloader-version ${BOOTLOADER_VERSION} --bl-settings-version 2 --softdevice "${${SOFTDEVICE}_HEX_FILE}" --sd-boot-validation ${SD_VALIDATION} --key-file "${PRIVATE_KEY}" "${CMAKE_CURRENT_BINARY_DIR}/generic_bootloader_setting.hex"
-            COMMAND ${MERGEHEX} -m ${${SOFTDEVICE}_HEX_FILE} "${CMAKE_CURRENT_BINARY_DIR}/generic_bootloader.hex" "${CMAKE_CURRENT_BINARY_DIR}/generic_bootloader_setting.hex" -o "${OP_FILE}"
+            COMMAND ${MERGEHEX} -m ${${SOFTDEVICE}_HEX_FILE} "${BOOTLOADER_HEX}" "${CMAKE_CURRENT_BINARY_DIR}/generic_bootloader_setting.hex" -o "${OP_FILE}"
             DEPENDS secure_bootloader_generic
-            DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/generic_bootloader.hex"
+            DEPENDS "${BOOTLOADER_HEX}"
             VERBATIM)
 endfunction()
 

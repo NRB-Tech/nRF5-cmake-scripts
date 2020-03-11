@@ -88,14 +88,15 @@ endmacro()
 # add the secure bootloader target.
 # also sets BL_OPT_FAMILY, BL_OPT_SD_ID, BL_OPT_SD_REQ for use with nrfutil params
 function(nRF5_addSecureBootloader EXECUTABLE_NAME PUBLIC_KEY_C_PATH BUILD_FLAGS)
-    set(BUILD_DIR ${CMAKE_CURRENT_BINARY_DIR}/bootloader_${EXECUTABLE_NAME})
+    set(BUILD_DIR _build_${EXECUTABLE_NAME})
     string(TOLOWER ${PLATFORM} PLATFORM_LC)
     add_custom_target(secure_bootloader_${EXECUTABLE_NAME} DEPENDS "${BUILD_DIR}/bootloader.hex")
     add_custom_command(OUTPUT "${BUILD_DIR}/bootloader.hex"
             COMMAND ${CMAKE_COMMAND} -E copy "${PUBLIC_KEY_C_PATH}" "${SDK_ROOT}/examples/dfu/dfu_public_key.c"
+            COMMAND ${CMAKE_COMMAND} -E make_directory "${SECURE_BOOTLOADER_SRC_DIR}/${BUILD_DIR}"
             COMMAND $(MAKE) -C "${SECURE_BOOTLOADER_SRC_DIR}" ${MAKEFILE_VARS} ${BUILD_FLAGS} OUTPUT_DIRECTORY="${BUILD_DIR}"
-            COMMAND ${CMAKE_COMMAND} -E rename "${BUILD_DIR}/${PLATFORM_LC}_${SOFTDEVICE_TYPE}.hex" "${BUILD_DIR}/bootloader.hex"
-            COMMAND ${CMAKE_COMMAND} -E rename "${BUILD_DIR}/${PLATFORM_LC}_${SOFTDEVICE_TYPE}.out" "${BUILD_DIR}/bootloader.out"
+            COMMAND ${CMAKE_COMMAND} -E rename "${SECURE_BOOTLOADER_SRC_DIR}/${BUILD_DIR}/${PLATFORM_LC}_${SOFTDEVICE_TYPE}.hex" "${SECURE_BOOTLOADER_SRC_DIR}/${BUILD_DIR}/bootloader.hex"
+            COMMAND ${CMAKE_COMMAND} -E rename "${SECURE_BOOTLOADER_SRC_DIR}/${BUILD_DIR}/${PLATFORM_LC}_${SOFTDEVICE_TYPE}.out" "${SECURE_BOOTLOADER_SRC_DIR}/${BUILD_DIR}/bootloader.out"
             DEPENDS uECC
             )
     set_property(DIRECTORY APPEND PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
