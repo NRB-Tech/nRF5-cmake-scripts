@@ -364,7 +364,7 @@ function(_addDFUPackageTarget INCLUDE_BL_SD EXECUTABLE_NAME VERSION_STRING PRIVA
     set(PKG_OPT --sd-req ${BL_OPT_SD_REQ} --hw-version ${BL_OPT_HW_VERSION} --application "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}.hex" --application-version-string "${VERSION_STRING}" --app-boot-validation ${APP_VALIDATION} --key-file "${PRIVATE_KEY}")
     set(DEPENDS ${EXECUTABLE_NAME})
     if(${INCLUDE_BL_SD})
-        list(APPEND PKG_OPT --sd-id ${BL_OPT_SD_ID} --bootloader "${CMAKE_CURRENT_BINARY_DIR}/bootloader_${EXECUTABLE_NAME}/bootloader.hex" --bootloader-version ${BOOTLOADER_VERSION} --softdevice "${${SOFTDEVICE}_HEX_FILE}" --sd-boot-validation ${SD_VALIDATION})
+        list(APPEND PKG_OPT --sd-id ${BL_OPT_SD_ID} --bootloader "${SECURE_BOOTLOADER_SRC_DIR}/_build_${EXECUTABLE_NAME}/bootloader.hex" --bootloader-version ${BOOTLOADER_VERSION} --softdevice "${${SOFTDEVICE}_HEX_FILE}" --sd-boot-validation ${SD_VALIDATION})
         list(APPEND DEPENDS secure_bootloader_${EXECUTABLE_NAME})
         set(TARGET_PREFIX pkg_bl_sd_)
         set(FILENAME_SUFFIX _bl_sd_app)
