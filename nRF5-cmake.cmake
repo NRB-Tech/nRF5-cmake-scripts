@@ -400,6 +400,6 @@ function(nRF5_print_size EXECUTABLE_NAME linker_file include_bootloader)
         list(APPEND options -b "${SECURE_BOOTLOADER_SRC_DIR}/_build_${EXECUTABLE_NAME}/bootloader.out")
     endif()
     add_custom_command(TARGET ${target_depend} POST_BUILD
-            COMMAND ${nRF5_CMAKE_PATH}/includes/getSizes -r 65536 -l 524288 -f ${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}.elf ${options}
+            COMMAND ${nRF5_CMAKE_PATH}/includes/getSizes -r 65536 -l 524288 -f ${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}${CMAKE_EXECUTABLE_SUFFIX} ${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}.map ${options}
             VERBATIM)
 endfunction()

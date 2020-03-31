@@ -1,11 +1,13 @@
 #!/bin/bash
 
+set -e
+
 cd "$( dirname "${BASH_SOURCE[0]}" )"
 
 function help() {
     echo "Options:"
     echo "usage: getSizes [-b <bootloader elf or out path>] [-s <linker script path>] "
-    echo "                [-f <firmware elf path>] [-r <max ram size>]"
+    echo "                [-f <firmware elf path> <firmware map path>] [-r <max ram size>]"
     echo "                [-l <max flash size>] [-h]"
     echo ""
     echo " -b : Include the flash and RAM consumption of the bootloader, passing the"
@@ -48,9 +50,15 @@ case $key in
     -f|--firmware)
     FIRMWARE="$2"
     if [[ ! -f "$FIRMWARE" ]]; then
-        echo "Firmware path invalid"
+        echo "Firmware path invalid: $FIRMWARE"
         exit 1
     fi
+    MAP="$3"
+    if [[ ! -f "$MAP" ]]; then
+        echo "Firmware map path invalid: $MAP"
+        exit 1
+    fi
+	shift # past value
 	shift # past value
 	;;
     -r|--maxram)
@@ -131,10 +139,15 @@ if [ -n "$FIRMWARE" ]; then
         echo "Error retrieving firmware size"
         exit 1
     fi
-    FIRMWARE_RAM_SIZE="$ram_size_output"
+    HEAP_SIZE=$(perl -0777 -ne "print \"\$1\" if /\.heap\s+0x0[0-9a-f]+\s+0x([0-9a-f]+)/s" "$MAP")
+    STACK_SIZE=$(perl -0777 -ne "print \"\$1\" if /\.stack_dummy\s+0x0[0-9a-f]+\s+0x([0-9a-f]+)/s" "$MAP")
+    HEAP_SIZE=$((16#$HEAP_SIZE))
+    STACK_SIZE=$((16#$STACK_SIZE))
+
+    FIRMWARE_RAM_SIZE="$((ram_size_output + HEAP_SIZE + STACK_SIZE))"
     FIRMWARE_FLASH_SIZE="$flash_size_output"
 
-    echo "Firmware: FLASH=$FIRMWARE_FLASH_SIZE RAM=$FIRMWARE_RAM_SIZE"
+    echo "Firmware: FLASH=$FIRMWARE_FLASH_SIZE RAM=$FIRMWARE_RAM_SIZE (heap: ${HEAP_SIZE}, stack: ${STACK_SIZE}, firmware: ${ram_size_output})"
 fi
 
 TOTAL_FLASH=$((BOOTLOADER_FLASH_SIZE + SOFTDEVICE_FLASH_SIZE + FIRMWARE_FLASH_SIZE))
