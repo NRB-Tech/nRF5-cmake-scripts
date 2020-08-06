@@ -83,6 +83,13 @@ set(CMAKE_SYSTEM_PROCESSOR "ARM")
 # prevent mesh SDK warning
 set(PATCH_EXECUTABLE "patch")
 
+set(nRF5_SDK_PATCH_COMMAND "")
+if(DEFINED nRF5_SDK_PATCH_FILE)
+    if (EXISTS "${nRF5_SDK_PATCH_FILE}")
+        set(nRF5_SDK_PATCH_COMMAND ${GIT} -C "${SDK_ROOT}" apply --ignore-space-change --ignore-whitespace --whitespace=nowarn ${nRF5_SDK_PATCH_FILE})
+    endif()
+endif()
+
 set(MESH_PATCH_COMMAND "")
 set(MESH_PATCH_FILE "${nRF5_CMAKE_PATH}/sdk/nrf5SDKforMeshv${nRF5_MESH_SDK_VERSION}src.patch")
 if (EXISTS "${MESH_PATCH_FILE}")
@@ -121,6 +128,7 @@ macro(nRF5_setup)
                 DOWNLOAD_DIR "${CMAKE_CURRENT_BINARY_DIR}/zip"
                 DOWNLOAD_NAME "${nRF5_SDK_VERSION}.zip"
                 URL ${nRF5_SDK_URL}
+                PATCH_COMMAND ${nRF5_SDK_PATCH_COMMAND}
                 # No build or configure commands
                 CONFIGURE_COMMAND ""
                 BUILD_COMMAND ""
