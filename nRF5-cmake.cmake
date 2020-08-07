@@ -330,6 +330,14 @@ macro(nRF5_addExecutable EXECUTABLE_NAME SOURCE_FILES INCLUDE_DIRECTORIES LINKER
     add_ses_project(${EXECUTABLE_NAME})
 endmacro()
 
+# Add a bootloader merge target.
+# @param EXECUTABLE_NAME The name of the App executable
+# @param VERSION_STRING The firmware version string
+# @param PRIVATE_KEY A private key for firmware signing. Required if APP_VALIDATION or SD_VALIDATION is VALIDATE_ECDSA_P256_SHA256
+# @param PREVIOUS_SOFTDEVICES A list of softdevice identifiers used in previous firmware versions
+# @param APP_VALIDATION The method of boot validation for the application [NO_VALIDATION|VALIDATE_GENERATED_CRC|VALIDATE_GENERATED_SHA256|VALIDATE_ECDSA_P256_SHA256]
+# @param SD_VALIDATION The method of boot validation for the softdevice [NO_VALIDATION|VALIDATE_GENERATED_CRC|VALIDATE_GENERATED_SHA256|VALIDATE_ECDSA_P256_SHA256]
+# @param BOOTLOADER_VERSION The new bootloader version
 function(nRF5_addBootloaderMergeTarget EXECUTABLE_NAME VERSION_STRING PRIVATE_KEY PREVIOUS_SOFTDEVICES APP_VALIDATION SD_VALIDATION BOOTLOADER_VERSION)
     if(NOT TARGET secure_bootloader_${EXECUTABLE_NAME})
         message(FATAL_ERROR "You must call nRF5_addSecureBootloader and provide the public key before calling nRF5_addBootloaderMergeTarget")
@@ -341,8 +349,17 @@ function(nRF5_addBootloaderMergeTarget EXECUTABLE_NAME VERSION_STRING PRIVATE_KE
     set(OP_FILE "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}_bl_merged.hex")
     set(BOOTLOADER_HEX "${SECURE_BOOTLOADER_SRC_DIR}/_build_${EXECUTABLE_NAME}/bootloader.hex")
     add_custom_target(bl_merge_${EXECUTABLE_NAME} DEPENDS "${OP_FILE}")
+    if(${APP_VALIDATION} STREQUAL "VALIDATE_ECDSA_P256_SHA256" OR ${SD_VALIDATION} STREQUAL "VALIDATE_ECDSA_P256_SHA256")
+        if(${PRIVATE_KEY} STREQUAL "")
+            message(FATAL_ERROR "PRIVATE_KEY parameter must be supplied when using VALIDATE_ECDSA_P256_SHA256 validation")
+            return()
+        endif()
+        set(private_key_param " --key-file \"${PRIVATE_KEY}\"")
+    else()
+        set(private_key_param "")
+    endif()
     add_custom_command(OUTPUT "${OP_FILE}"
-            COMMAND ${NRFUTIL} settings generate --family ${BL_OPT_FAMILY} --application "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}.hex" --application-version-string "${VERSION_STRING}" --app-boot-validation ${APP_VALIDATION} --bootloader-version ${BOOTLOADER_VERSION} --bl-settings-version 2 --softdevice "${${SOFTDEVICE}_HEX_FILE}" --sd-boot-validation ${SD_VALIDATION} --key-file "${PRIVATE_KEY}" "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}_bootloader_setting.hex"
+            COMMAND ${NRFUTIL} settings generate --family ${BL_OPT_FAMILY} --application "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}.hex" --application-version-string "${VERSION_STRING}" --app-boot-validation ${APP_VALIDATION} --bootloader-version ${BOOTLOADER_VERSION} --bl-settings-version 2 --softdevice "${${SOFTDEVICE}_HEX_FILE}" --sd-boot-validation ${SD_VALIDATION}${private_key_param} "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}_bootloader_setting.hex"
             COMMAND ${MERGEHEX} -m ${BOOTLOADER_HEX} "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}_bootloader_setting.hex" "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}_merged.hex" -o "${OP_FILE}"
             DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}_merged.hex"
             DEPENDS secure_bootloader_${EXECUTABLE_NAME}
