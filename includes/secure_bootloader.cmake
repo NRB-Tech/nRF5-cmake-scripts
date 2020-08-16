@@ -53,6 +53,7 @@ set(s332_6.1.1_FWID 0xBA)
 set(s340_6.1.1_FWID 0xB9)
 
 set(SECURE_BOOTLOADER_SRC_DIR "${SDK_ROOT}/examples/dfu/secure_bootloader/${BOARD}_${SOFTDEVICE_TYPE}_ble/armgcc")
+set(OPEN_BOOTLOADER_SRC_DIR "${SDK_ROOT}/examples/dfu/open_bootloader/${BOARD}_${SOFTDEVICE_TYPE}_ble/armgcc")
 
 if(NOT DEFINED ${IC}_FAMILY)
     message(FATAL_ERROR "The family is not found for the IC ${IC}, define a valid IC or check secure_bootloader.cmake for missing IC defs")
@@ -85,17 +86,22 @@ macro(nRF5_get_BL_OPT_SD_REQ PREVIOUS_SOFTDEVICES)
     list(JOIN ids_list "," BL_OPT_SD_REQ)
 endmacro()
 
-# add the secure bootloader target.
+# add the bootloader target.
 # also sets BL_OPT_FAMILY, BL_OPT_SD_ID, BL_OPT_SD_REQ for use with nrfutil params
-function(nRF5_addSecureBootloader EXECUTABLE_NAME PUBLIC_KEY_C_PATH BUILD_FLAGS)
+function(nRF5_addBootloader SECURE EXECUTABLE_NAME PUBLIC_KEY_C_PATH BUILD_FLAGS)
+    if(${SECURE})
+        set(TYPE SECURE)
+    else()
+        set(TYPE OPEN)
+    endif()
     set(BUILD_DIR _build_${EXECUTABLE_NAME})
-    set(BUILD_PATH ${SECURE_BOOTLOADER_SRC_DIR}/${BUILD_DIR})
+    set(BUILD_PATH ${${TYPE}_BOOTLOADER_SRC_DIR}/${BUILD_DIR})
     string(TOLOWER ${PLATFORM} PLATFORM_LC)
     add_custom_target(secure_bootloader_${EXECUTABLE_NAME} DEPENDS "${BUILD_PATH}/bootloader.hex")
     add_custom_command(OUTPUT "${BUILD_PATH}/bootloader.hex"
             COMMAND ${CMAKE_COMMAND} -E copy "${PUBLIC_KEY_C_PATH}" "${SDK_ROOT}/examples/dfu/dfu_public_key.c"
             COMMAND ${CMAKE_COMMAND} -E make_directory "${BUILD_PATH}"
-            COMMAND $(MAKE) -C "${SECURE_BOOTLOADER_SRC_DIR}" ${MAKEFILE_VARS} ${BUILD_FLAGS} OUTPUT_DIRECTORY="${BUILD_DIR}"
+            COMMAND $(MAKE) -C "${${TYPE}_BOOTLOADER_SRC_DIR}" ${MAKEFILE_VARS} ${BUILD_FLAGS} OUTPUT_DIRECTORY="${BUILD_DIR}"
             COMMAND ${CMAKE_COMMAND} -E rename "${BUILD_PATH}/${PLATFORM_LC}_${SOFTDEVICE_TYPE}.hex" "${BUILD_PATH}/bootloader.hex"
             COMMAND ${CMAKE_COMMAND} -E rename "${BUILD_PATH}/${PLATFORM_LC}_${SOFTDEVICE_TYPE}.out" "${BUILD_PATH}/bootloader.out"
             DEPENDS uECC
@@ -103,4 +109,12 @@ function(nRF5_addSecureBootloader EXECUTABLE_NAME PUBLIC_KEY_C_PATH BUILD_FLAGS)
     set_property(DIRECTORY APPEND PROPERTY ADDITIONAL_MAKE_CLEAN_FILES
             "${BUILD_PATH}"
             )
+endfunction()
+
+function(nRF5_addSecureBootloader EXECUTABLE_NAME PUBLIC_KEY_C_PATH BUILD_FLAGS)
+    nRF5_addBootloader(TRUE ${EXECUTABLE_NAME} ${PUBLIC_KEY_C_PATH} ${BUILD_FLAGS})
+endfunction()
+
+function(nRF5_addOpenBootloader EXECUTABLE_NAME PUBLIC_KEY_C_PATH BUILD_FLAGS)
+    nRF5_addBootloader(FALSE ${EXECUTABLE_NAME} ${PUBLIC_KEY_C_PATH} ${BUILD_FLAGS})
 endfunction()
