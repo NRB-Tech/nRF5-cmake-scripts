@@ -112,9 +112,9 @@ function(nRF5_addBootloader SECURE EXECUTABLE_NAME PUBLIC_KEY_C_PATH BUILD_FLAGS
 endfunction()
 
 function(nRF5_addSecureBootloader EXECUTABLE_NAME PUBLIC_KEY_C_PATH BUILD_FLAGS)
-    nRF5_addBootloader(TRUE ${EXECUTABLE_NAME} ${PUBLIC_KEY_C_PATH} ${BUILD_FLAGS})
+    nRF5_addBootloader(TRUE "${EXECUTABLE_NAME}" "${PUBLIC_KEY_C_PATH}" "${BUILD_FLAGS}")
 endfunction()
 
 function(nRF5_addOpenBootloader EXECUTABLE_NAME PUBLIC_KEY_C_PATH BUILD_FLAGS)
-    nRF5_addBootloader(FALSE ${EXECUTABLE_NAME} ${PUBLIC_KEY_C_PATH} ${BUILD_FLAGS})
+    nRF5_addBootloader(FALSE "${EXECUTABLE_NAME}" "${PUBLIC_KEY_C_PATH}" "${BUILD_FLAGS}")
 endfunction()
