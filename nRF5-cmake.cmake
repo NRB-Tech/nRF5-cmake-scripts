@@ -287,11 +287,24 @@ macro(nRF5_setup)
     endif()
 endmacro()
 
-function(nRF5_addFlashTarget targetName hexFile)
+function(nRF5_addFlashTarget isApp targetName hexFile)
+    if(${isApp})
+        set(OPT "--sectorerase")
+    else()
+        set(OPT "--chiperase")
+    endif()
     add_custom_target(flash_${targetName}
-            COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CONFIG_DIR}/nrfjprog.py "${hexFile}"
+            COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CONFIG_DIR}/nrfjprog.py "${hexFile}" ${OPT}
             USES_TERMINAL
             DEPENDS ${targetName})
+endfunction()
+
+function(nRF5_addAppFlashTarget targetName hexFile)
+    nRF5_addFlashTarget(FALSE "${targetName}" "${hexFile}")
+endfunction()
+
+function(nRF5_addFullFlashTarget targetName hexFile)
+    nRF5_addFlashTarget(FALSE "${targetName}" "${hexFile}")
 endfunction()
 
 # adds a target for comiling and flashing an executable
