@@ -121,7 +121,7 @@ void SEGGER_RTT_Init (void) {
 
 This ensures that RTT is not re-init in the App if already init in the bootloader.
 
-Ensure all the SEGGER files are compiled in your bootloader – refer to the `_debug` makefiles to do see what is required.
+Ensure all the SEGGER files are compiled in your bootloader – refer to the `_debug` makefiles to see what is required.
 
 Ensure the bootloader `sdk_config.h`/`app_config.h` is configured to use RTT.
 
