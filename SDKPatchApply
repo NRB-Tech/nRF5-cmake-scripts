@@ -17,6 +17,6 @@ root="$( realpath $(dirname "${BASH_SOURCE[0]}") )"
 
 cd "$root/../toolchains/nRF5"
 
-patch -d nrf5SDKforMeshv400src -p1 < "$root/sdk/nrf5SDKforMeshv400src.patch"
+patch -d nrf5SDKforMeshv420src -p1 < "$root/sdk/nrf5SDKforMeshv420src.patch"
 
 echo "Done!"

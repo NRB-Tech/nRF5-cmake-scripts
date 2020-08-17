@@ -17,6 +17,6 @@ root="$( realpath $(dirname "${BASH_SOURCE[0]}") )"
 
 cd "$root"
 
-perl -0pi -e "s/(diff|\-\-\-|\+\+\+|\@\@)(.*?)$(printf '\r')/\1\2/g" sdk/nrf5SDKforMeshv400src.patch
+perl -0pi -e "s/(diff|\-\-\-|\+\+\+|\@\@)(.*?)$(printf '\r')/\1\2/g" sdk/nrf5SDKforMeshv420src.patch
 
 echo "Done!"

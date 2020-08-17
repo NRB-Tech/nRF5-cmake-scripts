@@ -17,7 +17,7 @@ root="$( realpath $(dirname "${BASH_SOURCE[0]}") )"
 
 cd "$root/../toolchains/nRF5"
 
-find nrf5SDKforMeshv400src '(' \
+find nrf5SDKforMeshv420src '(' \
     -name \*-baseline -o \
     -name \*-merge -o \
     -name \*-original -o \
