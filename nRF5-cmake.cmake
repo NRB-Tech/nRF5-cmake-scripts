@@ -308,7 +308,7 @@ function(nRF5_addFullFlashTarget targetName hexFile)
 endfunction()
 
 # adds a target for comiling and flashing an executable
-macro(nRF5_addExecutable EXECUTABLE_NAME SOURCE_FILES INCLUDE_DIRECTORIES LINKER_FILE)
+macro(nRF5_addExecutable EXECUTABLE_NAME SOURCE_FILES INCLUDE_DIRECTORIES LINKER_FILE SYMBOLS_TO_REMOVE_FROM_HEX)
     set(_SOURCE_FILES ${SOURCE_FILES})
     set(_INCLUDE_DIRECTORIES ${INCLUDE_DIRECTORIES})
     list(APPEND _SOURCE_FILES
@@ -337,7 +337,7 @@ macro(nRF5_addExecutable EXECUTABLE_NAME SOURCE_FILES INCLUDE_DIRECTORIES LINKER
             ${${SOFTDEVICE}_DEFINES}
             ${${BOARD}_DEFINES})
 
-    create_hex(${EXECUTABLE_NAME})
+    create_hex(${EXECUTABLE_NAME} "${SYMBOLS_TO_REMOVE_FROM_HEX}")
     add_flash_target(${EXECUTABLE_NAME})
 
     add_ses_project(${EXECUTABLE_NAME})
