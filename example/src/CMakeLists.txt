@@ -52,7 +52,7 @@ list(APPEND INCLUDE_DIRS
         ${NRF_PROJECT_DEVICE_PATH}/config
         )
 
-nRF5_addExecutable(${target} "${SOURCE_FILES}" "${INCLUDE_DIRS}" "${NRF5_LINKER_SCRIPT}")
+nRF5_addExecutable(${target} "${SOURCE_FILES}" "${INCLUDE_DIRS}" "${NRF5_LINKER_SCRIPT}" ".rtt")
 
 # Here you would set a list of user variables to be defined for the bootloader makefile (which you have modified yourself)
 set(bootloader_vars "")

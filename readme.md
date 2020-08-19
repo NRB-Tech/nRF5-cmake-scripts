@@ -105,7 +105,7 @@ In the nRF52 SDK, `modules/nrfx/mdk/nrf_common.ld`, add the following before `.d
 } > RAM
 ```
 
-This symbol must be removed from the hex file, but the mesh SDK patch in this project modifies the mesh SDK to do that.
+This symbol must be removed from the hex file, to do this ensure ".rtt" is in the list of symbols to remove from hex passed to `nRF5_addExecutable` (see example project).
 
 Ensure the RAM start and size are aligned in the app and bootloader linker scripts.
 
