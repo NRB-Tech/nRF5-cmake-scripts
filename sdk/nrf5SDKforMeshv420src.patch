@@ -84,7 +84,7 @@ diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' 
      with open("ses.xml", "r") as f:
 diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv420src.orig/CMake/nrfjprog.py nrf5SDKforMeshv420src/CMake/nrfjprog.py
 --- nrf5SDKforMeshv420src.orig/CMake/nrfjprog.py	2020-06-30 07:23:10.000000000 +0100
-+++ nrf5SDKforMeshv420src/CMake/nrfjprog.py	2020-08-17 11:39:44.000000000 +0100
++++ nrf5SDKforMeshv420src/CMake/nrfjprog.py	2020-08-19 09:31:12.000000000 +0100
 @@ -41,6 +41,8 @@
  
  
@@ -96,34 +96,56 @@ diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' 
      while number is None:
 diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv420src.orig/CMake/sdk/nRF5_SDK_16.0.0_98a08e2.cmake nrf5SDKforMeshv420src/CMake/sdk/nRF5_SDK_16.0.0_98a08e2.cmake
 --- nrf5SDKforMeshv420src.orig/CMake/sdk/nRF5_SDK_16.0.0_98a08e2.cmake	2020-06-30 07:23:10.000000000 +0100
-+++ nrf5SDKforMeshv420src/CMake/sdk/nRF5_SDK_16.0.0_98a08e2.cmake	2020-08-17 11:48:22.000000000 +0100
-@@ -1,8 +1,8 @@
++++ nrf5SDKforMeshv420src/CMake/sdk/nRF5_SDK_16.0.0_98a08e2.cmake	1970-01-01 01:00:00.000000000 +0100
+@@ -1,22 +0,0 @@
 -set(nRF5_SDK_16.0.0_98a08e2_SOURCE_FILES
-+set(nRF5_SDK_17.0.0_9d13099_SOURCE_FILES
-     "${SDK_ROOT}/components/libraries/util/app_error.c"
-     "${SDK_ROOT}/components/libraries/util/app_util_platform.c")
- 
+-    "${SDK_ROOT}/components/libraries/util/app_error.c"
+-    "${SDK_ROOT}/components/libraries/util/app_util_platform.c")
+-
 -set(nRF5_SDK_16.0.0_98a08e2_INCLUDE_DIRS
+-    "${SDK_ROOT}/integration/nrfx"
+-    "${SDK_ROOT}/components/libraries/util"
+-    "${SDK_ROOT}/components/libraries/timer"
+-    "${SDK_ROOT}/components/libraries/log"
+-    "${SDK_ROOT}/components/libraries/log/src"
+-    "${SDK_ROOT}/components/libraries/experimental_section_vars"
+-    "${SDK_ROOT}/components/libraries/delay")
+-
+-if (TOOLCHAIN STREQUAL "armcc")
+-    set(nRF5_SDK_16.0.0_98a08e2_SOURCE_FILES
+-        ${nRF5_SDK_16.0.0_98a08e2_SOURCE_FILES}
+-        "${SDK_ROOT}/components/libraries/util/app_error_handler_keil.c")
+-else ()
+-    set(nRF5_SDK_16.0.0_98a08e2_SOURCE_FILES
+-        ${nRF5_SDK_16.0.0_98a08e2_SOURCE_FILES}
+-        "${SDK_ROOT}/components/libraries/util/app_error_handler_gcc.c")
+-endif ()
+diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv420src.orig/CMake/sdk/nRF5_SDK_17.0.0_9d13099.cmake nrf5SDKforMeshv420src/CMake/sdk/nRF5_SDK_17.0.0_9d13099.cmake
+--- nrf5SDKforMeshv420src.orig/CMake/sdk/nRF5_SDK_17.0.0_9d13099.cmake	1970-01-01 01:00:00.000000000 +0100
++++ nrf5SDKforMeshv420src/CMake/sdk/nRF5_SDK_17.0.0_9d13099.cmake	2020-08-17 11:48:22.000000000 +0100
+@@ -0,0 +1,22 @@
++set(nRF5_SDK_17.0.0_9d13099_SOURCE_FILES
++    "${SDK_ROOT}/components/libraries/util/app_error.c"
++    "${SDK_ROOT}/components/libraries/util/app_util_platform.c")
++
 +set(nRF5_SDK_17.0.0_9d13099_INCLUDE_DIRS
-     "${SDK_ROOT}/integration/nrfx"
-     "${SDK_ROOT}/components/libraries/util"
-     "${SDK_ROOT}/components/libraries/timer"
-@@ -12,11 +12,11 @@
-     "${SDK_ROOT}/components/libraries/delay")
- 
- if (TOOLCHAIN STREQUAL "armcc")
--    set(nRF5_SDK_16.0.0_98a08e2_SOURCE_FILES
--        ${nRF5_SDK_16.0.0_98a08e2_SOURCE_FILES}
++    "${SDK_ROOT}/integration/nrfx"
++    "${SDK_ROOT}/components/libraries/util"
++    "${SDK_ROOT}/components/libraries/timer"
++    "${SDK_ROOT}/components/libraries/log"
++    "${SDK_ROOT}/components/libraries/log/src"
++    "${SDK_ROOT}/components/libraries/experimental_section_vars"
++    "${SDK_ROOT}/components/libraries/delay")
++
++if (TOOLCHAIN STREQUAL "armcc")
 +    set(nRF5_SDK_17.0.0_9d13099_SOURCE_FILES
 +        ${nRF5_SDK_17.0.0_9d13099_SOURCE_FILES}
-         "${SDK_ROOT}/components/libraries/util/app_error_handler_keil.c")
- else ()
--    set(nRF5_SDK_16.0.0_98a08e2_SOURCE_FILES
--        ${nRF5_SDK_16.0.0_98a08e2_SOURCE_FILES}
++        "${SDK_ROOT}/components/libraries/util/app_error_handler_keil.c")
++else ()
 +    set(nRF5_SDK_17.0.0_9d13099_SOURCE_FILES
 +        ${nRF5_SDK_17.0.0_9d13099_SOURCE_FILES}
-         "${SDK_ROOT}/components/libraries/util/app_error_handler_gcc.c")
- endif ()
++        "${SDK_ROOT}/components/libraries/util/app_error_handler_gcc.c")
++endif ()
 diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv420src.orig/CMake/toolchain/gccarmemb.cmake nrf5SDKforMeshv420src/CMake/toolchain/gccarmemb.cmake
 --- nrf5SDKforMeshv420src.orig/CMake/toolchain/gccarmemb.cmake	2020-06-30 07:23:11.000000000 +0100
 +++ nrf5SDKforMeshv420src/CMake/toolchain/gccarmemb.cmake	2020-08-18 18:46:19.000000000 +0100
