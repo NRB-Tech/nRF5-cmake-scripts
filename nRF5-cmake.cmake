@@ -437,7 +437,14 @@ function(nRF5_print_size EXECUTABLE_NAME linker_file include_bootloader)
         set(target_depend bl_merge_${EXECUTABLE_NAME})
         list(APPEND options -b "${SECURE_BOOTLOADER_SRC_DIR}/_build_${EXECUTABLE_NAME}/bootloader.out")
     endif()
+    if(IC STREQUAL "nRF52840")
+        set(MAXRAM 262144)
+        set(MAXFLASH 1048576)
+    elseif(IC STREQUAL "nRF52832")
+        set(MAXRAM 65536)
+        set(MAXFLASH 524288)
+    endif()
     add_custom_command(TARGET ${target_depend} POST_BUILD
-            COMMAND ${nRF5_CMAKE_PATH}/includes/getSizes -r 65536 -l 524288 -f ${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}${CMAKE_EXECUTABLE_SUFFIX} ${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}.map ${options}
+            COMMAND ${nRF5_CMAKE_PATH}/includes/getSizes -r ${MAXRAM} -l ${MAXFLASH} -f ${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}${CMAKE_EXECUTABLE_SUFFIX} ${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}.map ${options}
             VERBATIM)
 endfunction()
