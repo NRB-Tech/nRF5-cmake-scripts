@@ -34,6 +34,9 @@ project(BlinkyExampleProject
 message(STATUS "Configuring CMake for nRF5 SDK for ${PROJECT_NAME} ${VERSION_STRING}")
 nRF5_setup()
 
+# uncomment to enable C++
+# enable_language(CXX)
+
 if(NOT TARGET download)
     add_subdirectory("src")
 endif()
