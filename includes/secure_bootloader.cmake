@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.5.0)
 include(${CMAKE_CURRENT_LIST_DIR}/uECC.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/makefile_vars.cmake)
 
-# taken from https://github.com/NordicSemiconductor/pc-nrfutil
+# taken from running nrfutil settings generate --help, see --family flag
 
 set(nRF51xxx_FAMILY NRF51)
 set(nRF52832_FAMILY NRF52)
@@ -11,13 +11,19 @@ set(nRF52832-QFAB_FAMILY NRF52QFAB)
 set(nRF52810_FAMILY NRF52810)
 set(nRF52840_FAMILY NRF52840)
 
+# taken from running nrfutil pkg generate --help, see --sd-req flag,
+# or in SDK/components/softdevice/sXXX/sXXX_nrfXX_X.X.X_release-notes.pdf,
+# Softdevice properties, "The Firmware ID of this SoftDevice is 0xXXXX"
+
 set(s112_6.0.0_FWID 0xA7)
 set(s112_6.1.0_FWID 0xB0)
 set(s112_6.1.1_FWID 0xB8)
 set(s112_7.0.0_FWID 0xC4)
 set(s112_7.0.1_FWID 0xCD)
+set(s112_7.2.0_FWID 0x0103)
 set(s113_7.0.0_FWID 0xC3)
 set(s113_7.0.1_FWID 0xCC)
+set(s113_7.2.0_FWID 0x0102)
 set(s130_1.0.0_FWID 0x67)
 set(s130_2.0.0_FWID 0x80)
 set(s132_2.0.0_FWID 0x81)
@@ -43,11 +49,13 @@ set(s132_6.1.0_FWID 0xAF)
 set(s132_6.1.1_FWID 0xB7)
 set(s132_7.0.0_FWID 0xC2)
 set(s132_7.0.1_FWID 0xCB)
+set(s132_7.2.0_FWID 0x0101)
 set(s140_6.0.0_FWID 0xA9)
 set(s140_6.1.0_FWID 0xAE)
 set(s140_6.1.1_FWID 0xB6)
 set(s140_7.0.0_FWID 0xC1)
 set(s140_7.0.1_FWID 0xCA)
+set(s140_7.2.0_FWID 0x0100)
 set(s212_6.1.1_FWID 0xBC)
 set(s332_6.1.1_FWID 0xBA)
 set(s340_6.1.1_FWID 0xB9)

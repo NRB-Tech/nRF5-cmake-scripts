@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 3.6)
 set(IC "nRF52832" CACHE STRING "IC")
 set(PLATFORM "nrf52832_xxAA"  CACHE STRING "Platform")
 set(SOFTDEVICE_TYPE "s132" CACHE STRING "SoftDevice type")
-set(SOFTDEVICE_VERSION "7.0.1" CACHE STRING "SoftDevice version")
+set(SOFTDEVICE_VERSION "7.2.0" CACHE STRING "SoftDevice version")
 
 # enable to output verbose info
 set(CMAKE_VERBOSE_MAKEFILE off)

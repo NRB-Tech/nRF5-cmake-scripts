@@ -82,6 +82,47 @@ diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' 
      s = ""
  
      with open("ses.xml", "r") as f:
+diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv420src.orig/CMake/SoftDevice.cmake nrf5SDKforMeshv420src/CMake/SoftDevice.cmake
+--- nrf5SDKforMeshv420src.orig/CMake/SoftDevice.cmake	2020-06-30 07:23:10.000000000 +0100
++++ nrf5SDKforMeshv420src/CMake/SoftDevice.cmake	2020-09-23 18:35:58.000000000 +0100
+@@ -1,27 +1,27 @@
+ if (BUILD_HOST)
+-    set(SOFTDEVICE "s132_7.0.1" CACHE STRING "nRF52832 SoftDevice")
++    set(SOFTDEVICE "s132_7.2.0" CACHE STRING "nRF52832 SoftDevice")
+     set_property(CACHE SOFTDEVICE PROPERTY STRINGS
+-        "s132_7.0.1" "s132_6.1.1" "s132_6.1.0" "s132_6.0.0")
++        "s132_7.2.0" "s132_7.0.1" "s132_6.1.1" "s132_6.1.0" "s132_6.0.0")
+ elseif (PLATFORM MATCHES "nrf51.*")
+     set(SOFTDEVICE "s130_2.0.1" CACHE STRING "nRF51 SoftDevice")
+     set_property(CACHE SOFTDEVICE PROPERTY STRINGS
+         "s130_2.0.1")
+ elseif (PLATFORM MATCHES "nrf52810.*")
+-    set(SOFTDEVICE "s112_7.0.1" CACHE STRING "nRF52810 SoftDevice")
++    set(SOFTDEVICE "s112_7.2.0" CACHE STRING "nRF52810 SoftDevice")
+     set_property(CACHE SOFTDEVICE PROPERTY STRINGS
+-        "s112_7.0.1" "s112_6.1.1" "s112_6.1.0" "s112_6.0.0" "s113_7.0.1")
++       "s112_7.2.0" "s112_7.0.1" "s112_6.1.1" "s112_6.1.0" "s112_6.0.0" "s113_7.0.1")
+ elseif (PLATFORM MATCHES "nrf52832.*")
+-    set(SOFTDEVICE "s132_7.0.1" CACHE STRING "nRF52832 SoftDevice")
++    set(SOFTDEVICE "s132_7.2.0" CACHE STRING "nRF52832 SoftDevice")
+     set_property(CACHE SOFTDEVICE PROPERTY STRINGS
+-        "s132_7.0.1" "s113_7.0.1" "s132_6.1.1" "s132_6.1.0" "s132_6.0.0" "s132_5.0.0")
++       "s132_7.2.0" "s132_7.0.1" "s113_7.0.1" "s132_6.1.1" "s132_6.1.0" "s132_6.0.0" "s132_5.0.0")
+ elseif (PLATFORM MATCHES "nrf52833.*")
+-    set(SOFTDEVICE "s113_7.0.1" CACHE STRING "nRF52833 SoftDevice")
++    set(SOFTDEVICE "s113_7.2.0" CACHE STRING "nRF52833 SoftDevice")
+     set_property(CACHE SOFTDEVICE PROPERTY STRINGS
+-        "s113_7.0.1" "s140_7.0.1")
++       "s113_7.2.0" "s113_7.0.1" "s140_7.0.1")
+ elseif (PLATFORM MATCHES "nrf52840.*")
+-    set(SOFTDEVICE "s140_7.0.1" CACHE STRING "nRF52840 SoftDevice")
++    set(SOFTDEVICE "s140_7.2.0" CACHE STRING "nRF52840 SoftDevice")
+     set_property(CACHE SOFTDEVICE PROPERTY STRINGS
+-        "s140_7.0.1" "s113_7.0.1" "s140_6.1.1" "s140_6.1.0" "s140_6.0.0")
++        "s140_7.2.0" "s140_7.0.1" "s113_7.0.1" "s140_6.1.1" "s140_6.1.0" "s140_6.0.0")
+ endif ()
+ 
+ # Validate SoftDevice
 diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv420src.orig/CMake/nrfjprog.py nrf5SDKforMeshv420src/CMake/nrfjprog.py
 --- nrf5SDKforMeshv420src.orig/CMake/nrfjprog.py	2020-06-30 07:23:10.000000000 +0100
 +++ nrf5SDKforMeshv420src/CMake/nrfjprog.py	2020-09-23 18:19:02.000000000 +0100
@@ -146,6 +187,74 @@ diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' 
 +        ${nRF5_SDK_17.0.2_d674dde_SOURCE_FILES}
 +        "${SDK_ROOT}/components/libraries/util/app_error_handler_gcc.c")
 +endif ()
+diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv420src.orig/CMake/softdevice/s112_7.2.0.cmake nrf5SDKforMeshv420src/CMake/softdevice/s112_7.2.0.cmake
+--- nrf5SDKforMeshv420src.orig/CMake/softdevice/s112_7.2.0.cmake	1970-01-01 01:00:00.000000000 +0100
++++ nrf5SDKforMeshv420src/CMake/softdevice/s112_7.2.0.cmake	2020-09-23 18:10:27.000000000 +0100
+@@ -0,0 +1,13 @@
++set(name "s112_7.2.0")
++set(dir ${SDK_ROOT}/components/softdevice)
++set(${name}_INCLUDE_DIRS
++    "${dir}/s112/headers/"
++    "${dir}/s112/headers/nrf52/")
++set(${name}_HEX_FILE
++    "${dir}/s112/hex/s112_nrf52_7.2.0_softdevice.hex")
++set(${name}_VERSION "7.2.0")
++set(${name}_MAJOR_VERSION "7")
++set(${name}_DEFINES
++    -DS112
++    -DSOFTDEVICE_PRESENT
++    -DNRF_SD_BLE_API_VERSION=${${name}_MAJOR_VERSION})
+diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv420src.orig/CMake/softdevice/s113_7.2.0.cmake nrf5SDKforMeshv420src/CMake/softdevice/s113_7.2.0.cmake
+--- nrf5SDKforMeshv420src.orig/CMake/softdevice/s113_7.2.0.cmake	1970-01-01 01:00:00.000000000 +0100
++++ nrf5SDKforMeshv420src/CMake/softdevice/s113_7.2.0.cmake	2020-09-23 18:10:27.000000000 +0100
+@@ -0,0 +1,13 @@
++set(name "s113_7.2.0")
++set(dir ${SDK_ROOT}/components/softdevice)
++set(${name}_INCLUDE_DIRS
++    "${dir}/s113/headers/"
++    "${dir}/s113/headers/nrf52/")
++set(${name}_HEX_FILE
++    "${dir}/s113/hex/s113_nrf52_7.2.0_softdevice.hex")
++set(${name}_VERSION "7.2.0")
++set(${name}_MAJOR_VERSION "7")
++set(${name}_DEFINES
++    -DS113
++    -DSOFTDEVICE_PRESENT
++    -DNRF_SD_BLE_API_VERSION=${${name}_MAJOR_VERSION})
+diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv420src.orig/CMake/softdevice/s132_7.2.0.cmake nrf5SDKforMeshv420src/CMake/softdevice/s132_7.2.0.cmake
+--- nrf5SDKforMeshv420src.orig/CMake/softdevice/s132_7.2.0.cmake	1970-01-01 01:00:00.000000000 +0100
++++ nrf5SDKforMeshv420src/CMake/softdevice/s132_7.2.0.cmake	2020-09-23 18:10:27.000000000 +0100
+@@ -0,0 +1,13 @@
++set(name "s132_7.2.0")
++set(dir ${SDK_ROOT}/components/softdevice)
++set(${name}_INCLUDE_DIRS
++    "${dir}/s132/headers/"
++    "${dir}/s132/headers/nrf52/")
++set(${name}_HEX_FILE
++    "${dir}/s132/hex/s132_nrf52_7.2.0_softdevice.hex")
++set(${name}_VERSION "7.2.0")
++set(${name}_MAJOR_VERSION "7")
++set(${name}_DEFINES
++    -DS132
++    -DSOFTDEVICE_PRESENT
++    -DNRF_SD_BLE_API_VERSION=${${name}_MAJOR_VERSION})
+diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv420src.orig/CMake/softdevice/s140_7.2.0.cmake nrf5SDKforMeshv420src/CMake/softdevice/s140_7.2.0.cmake
+--- nrf5SDKforMeshv420src.orig/CMake/softdevice/s140_7.2.0.cmake	1970-01-01 01:00:00.000000000 +0100
++++ nrf5SDKforMeshv420src/CMake/softdevice/s140_7.2.0.cmake	2020-09-23 18:10:27.000000000 +0100
+@@ -0,0 +1,13 @@
++set(name "s140_7.2.0")
++set(dir ${SDK_ROOT}/components/softdevice)
++set(${name}_INCLUDE_DIRS
++    "${dir}/s140/headers/"
++    "${dir}/s140/headers/nrf52/")
++set(${name}_HEX_FILE
++    "${dir}/s140/hex/s140_nrf52_7.2.0_softdevice.hex")
++set(${name}_VERSION "7.2.0")
++set(${name}_MAJOR_VERSION "7")
++set(${name}_DEFINES
++    -DS140
++    -DSOFTDEVICE_PRESENT
++    -DNRF_SD_BLE_API_VERSION=${${name}_MAJOR_VERSION})
 diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv420src.orig/CMake/toolchain/gccarmemb.cmake nrf5SDKforMeshv420src/CMake/toolchain/gccarmemb.cmake
 --- nrf5SDKforMeshv420src.orig/CMake/toolchain/gccarmemb.cmake	2020-06-30 07:23:11.000000000 +0100
 +++ nrf5SDKforMeshv420src/CMake/toolchain/gccarmemb.cmake	2020-09-23 18:19:02.000000000 +0100

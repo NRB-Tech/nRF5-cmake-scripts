@@ -70,7 +70,7 @@ if(NOT SOFTDEVICE_TYPE)
 endif()
 
 if(NOT SOFTDEVICE_VERSION)
-    message(FATAL_ERROR "The softdevice version (SOFTDEVICE_VERSION) must be set, e.g. \"7.0.1\"")
+    message(FATAL_ERROR "The softdevice version (SOFTDEVICE_VERSION) must be set, e.g. \"7.2.0\"")
 endif()
 
 # must be set in file (not macro) scope (in macro would point to parent CMake directory)
