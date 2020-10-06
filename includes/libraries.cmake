@@ -538,6 +538,9 @@ endmacro()
 
 # adds app-level Timer libraries
 macro(nRF5_addAppTimer)
+    list(APPEND INCLUDE_DIRS
+      "${SDK_ROOT}/components/libraries/timer"
+      )
     list(APPEND SOURCE_FILES
             "${SDK_ROOT}/components/libraries/timer/app_timer.c"
             )
@@ -561,6 +564,7 @@ macro(nRF5_addAppButton)
     nRF5_addGPIOTE()
     list(APPEND INCLUDE_DIRS
             "${SDK_ROOT}/components/libraries/button"
+            "${SDK_ROOT}/integration/nrfx/legacy"
             )
 
     list(APPEND SOURCE_FILES
@@ -780,4 +784,35 @@ macro(nRF5_addBLEService NAME)
         nRF5_addBootloaderButtonlessLibs()
         nRF5_addBLEPeerManager()
     endif()
+endmacro()
+
+macro(nRF5_addAssert)
+    list(APPEND INCLUDE_DIRS
+      "${SDK_ROOT}/components/libraries/util"
+      )
+    list(APPEND SOURCE_FILES
+      "${SDK_ROOT}/components/libraries/util/nrf_assert.c"
+      )
+endmacro()
+
+macro(nRF5_addTWI)
+    nRF5_addPRS()
+    list(APPEND INCLUDE_DIRS
+      "${SDK_ROOT}/modules/nrfx/drivers/include"
+      )
+
+    list(APPEND SOURCE_FILES
+      "${SDK_ROOT}/integration/nrfx/legacy/nrf_drv_twi.c"
+      "${SDK_ROOT}/modules/nrfx/drivers/src/nrfx_twi.c"
+      )
+endmacro()
+
+macro(nRF5_addTWIManager)
+    list(APPEND INCLUDE_DIRS
+      "${SDK_ROOT}/components/libraries/twi_mngr"
+      )
+
+    list(APPEND SOURCE_FILES
+      "${SDK_ROOT}/components/libraries/twi_mngr/nrf_twi_mngr.c"
+      )
 endmacro()
