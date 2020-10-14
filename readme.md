@@ -4,6 +4,11 @@ CMake scripts for developing projects with Nordic Semiconductor nRF5 series SoCs
 
 This project originally forked from [cmake-nRF5x](https://github.com/Polidea/cmake-nRF5x) which is a self-contained nRF5 CMake solution. As this project takes a different approach (using Nordic Mesh SDK) it was set up as a new project.
 
+Currently supports:
+
+* nRF5 SDK v17.0.2
+* nRF5 Mesh SDK v4.2.0
+
 ## Dependencies
 
 The script makes use of the following dependencies which are downloaded by the script:
@@ -84,6 +89,14 @@ There are also other targets available:
 - `bl_merge_<your target name>`: Builds your application and the secure bootloader, merges these and the softdevice
 - `pkg_<your target name>`: Builds and packages your application for DFU
 - `pkg_bl_sd_<your target name>`: Builds and packages your application, the SoftDevice, and bootloader for DFU.
+
+## Enabling C++
+
+Immediately after the call to `nRF5_setup()` in your root `CMakeLists.txt`, add the line:
+
+```
+enable_language(CXX)
+```
 
 ## SEGGER RTT logging in bootloader and app
 
