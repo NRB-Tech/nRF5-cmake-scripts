@@ -44,7 +44,7 @@ This will download the dependencies and then generate the build files using the 
 
 ### Creating your own project
 
-_Note_: You can also follow the tutorial on the [NRB Tech blog](hhttps://nrbtech.io/blog/2020/1/4/using-cmake-for-nordic-nrf52-projects).
+_Note_: You can also follow the tutorial on the [NRB Tech blog](https://nrbtech.io/blog/2020/1/4/using-cmake-for-nordic-nrf52-projects).
 
 1. Download this repo (or add as submodule) to the directory `nRF5-cmake-scripts` in your project
 
