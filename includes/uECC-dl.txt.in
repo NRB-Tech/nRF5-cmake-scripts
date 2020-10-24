@@ -1,0 +1,15 @@
+cmake_minimum_required(VERSION 3.5.0)
+
+project(uECC-download NONE)
+
+include(ExternalProject)
+ExternalProject_Add(uECC_download
+        GIT_REPOSITORY    https://github.com/kmackay/micro-ecc
+        GIT_TAG           master
+        SOURCE_DIR        "${uECC_ROOT}/micro-ecc"
+        BINARY_DIR        ""
+        BUILD_COMMAND     ""
+        CONFIGURE_COMMAND ""
+        INSTALL_COMMAND   ""
+        TEST_COMMAND      ""
+        )

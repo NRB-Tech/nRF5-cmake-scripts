@@ -8,17 +8,31 @@ if(NOT DEFINED ${ARCH}_uECC)
     message(FATAL_ERROR  "The uECC type is not found for the arch ${ARCH}, check uECC.cmake for missing arch defs")
 endif()
 
+set(uECC_ROOT "${SDK_ROOT}/external/micro-ecc")
+
+# Download and unpack uECC at configure time
+configure_file("${CMAKE_CURRENT_LIST_DIR}/uECC-dl.txt.in" ${CMAKE_BINARY_DIR}/uECC-download/CMakeLists.txt)
+execute_process(COMMAND ${CMAKE_COMMAND} -G "${CMAKE_GENERATOR}" .
+        RESULT_VARIABLE result
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/uECC-download )
+if(result)
+    message(FATAL_ERROR "CMake step for uECC failed: ${result}")
+endif()
+execute_process(COMMAND ${CMAKE_COMMAND} --build .
+        RESULT_VARIABLE result
+        WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/uECC-download )
+if(result)
+    message(FATAL_ERROR "Build step for uECC failed: ${result}")
+endif()
+
 string(SUBSTRING ${PLATFORM} 0 5 uECC_PREFIX)
 
 include(${CMAKE_CURRENT_LIST_DIR}/makefile_vars.cmake)
 
-set(uECC_ROOT "${SDK_ROOT}/external/micro-ecc")
 set(uECC_PATH "${uECC_ROOT}/${uECC_PREFIX}${${ARCH}_uECC}_armgcc/armgcc")
 set(uECC_OP_FILE "${uECC_PATH}/micro_ecc_lib_${uECC_PREFIX}.a")
 include(ExternalProject)
 ExternalProject_Add(uECC
-    GIT_REPOSITORY    https://github.com/kmackay/micro-ecc
-    GIT_TAG           master
     SOURCE_DIR        "${uECC_ROOT}/micro-ecc"
     BINARY_DIR        "${CMAKE_BINARY_DIR}/uecc-build"
     BUILD_COMMAND     $(MAKE) -C "${uECC_PATH}" ${MAKEFILE_VARS}
