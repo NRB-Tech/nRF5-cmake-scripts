@@ -300,7 +300,7 @@ function(nRF5_addFlashTarget isApp targetName hexFile)
 endfunction()
 
 function(nRF5_addAppFlashTarget targetName hexFile)
-    nRF5_addFlashTarget(FALSE "${targetName}" "${hexFile}")
+    nRF5_addFlashTarget(TRUE "${targetName}" "${hexFile}")
 endfunction()
 
 function(nRF5_addFullFlashTarget targetName hexFile)
