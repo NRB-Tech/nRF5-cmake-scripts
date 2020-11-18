@@ -105,7 +105,7 @@ function(nRF5_addBootloader SECURE EXECUTABLE_NAME PUBLIC_KEY_C_PATH BUILD_FLAGS
     set(BUILD_DIR _build_${EXECUTABLE_NAME})
     set(BUILD_PATH ${${TYPE}_BOOTLOADER_SRC_DIR}/${BUILD_DIR})
     string(TOLOWER ${PLATFORM} PLATFORM_LC)
-    add_custom_target(secure_bootloader_${EXECUTABLE_NAME} DEPENDS "${BUILD_PATH}/bootloader.hex")
+    add_custom_target(${EXECUTABLE_NAME}_bl DEPENDS "${BUILD_PATH}/bootloader.hex")
     add_custom_command(OUTPUT "${BUILD_PATH}/bootloader.hex"
             COMMAND ${CMAKE_COMMAND} -E copy "${PUBLIC_KEY_C_PATH}" "${SDK_ROOT}/examples/dfu/dfu_public_key.c"
             COMMAND ${CMAKE_COMMAND} -E make_directory "${BUILD_PATH}"

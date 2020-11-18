@@ -51,6 +51,41 @@ diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' 
      }
  }")
  
+diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv420src.orig/CMake/Nrfjprog.cmake nrf5SDKforMeshv420src/CMake/Nrfjprog.cmake
+--- nrf5SDKforMeshv420src.orig/CMake/Nrfjprog.cmake	2020-06-30 07:23:10.000000000 +0100
++++ nrf5SDKforMeshv420src/CMake/Nrfjprog.cmake	2020-11-18 12:23:00.000000000 +0000
+@@ -5,30 +5,7 @@
+     mergehex)
+ 
+ if (NRFJPROG AND MERGEHEX AND PYTHON_EXECUTABLE)
+-    add_custom_target(merge)
+-    function(add_flash_target target)
+-        # Both the manual <merge> and <flash> target and depends on
+-        # the custom command that generates the merged hexfile.
+-        add_custom_target(merge_${target}
+-            DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${target}_merged.hex)
+-
+-        add_dependencies(merge merge_${target})
+-
+-        add_custom_target(app_flash_${target}
+-            COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CONFIG_DIR}/nrfjprog.py ${CMAKE_CURRENT_BINARY_DIR}/${target}.hex --sectorerase
+-            USES_TERMINAL
+-            DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${target}.hex)
+-
+-        add_custom_target(flash_${target}
+-            COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CONFIG_DIR}/nrfjprog.py ${CMAKE_CURRENT_BINARY_DIR}/${target}_merged.hex --chiperase
+-            USES_TERMINAL
+-            DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${target}_merged.hex)
+-
+-        add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${target}_merged.hex
+-            COMMAND ${MERGEHEX} -m ${${SOFTDEVICE}_HEX_FILE} ${CMAKE_CURRENT_BINARY_DIR}/${target}.hex -o ${CMAKE_CURRENT_BINARY_DIR}/${target}_merged.hex
+-            DEPENDS ${target}
+-            VERBATIM)
+-    endfunction(add_flash_target)
++    # removed as not required
+ else ()
+     message(STATUS "Could not find nRFx command line tools (`nrfjprog` and `mergehex`).
+    See https://infocenter.nordicsemi.com/topic/ug_nrf5x_cltools/UG/cltools/nrf5x_installation.html.
 diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv420src.orig/CMake/SES/SESGenerator.py nrf5SDKforMeshv420src/CMake/SES/SESGenerator.py
 --- nrf5SDKforMeshv420src.orig/CMake/SES/SESGenerator.py	2020-06-30 07:23:10.000000000 +0100
 +++ nrf5SDKforMeshv420src/CMake/SES/SESGenerator.py	2020-09-23 18:19:02.000000000 +0100
