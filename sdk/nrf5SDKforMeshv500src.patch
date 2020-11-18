@@ -1,0 +1,137 @@
+diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv500src.orig/CMake/GenerateSESProject.cmake nrf5SDKforMeshv500src/CMake/GenerateSESProject.cmake
+--- nrf5SDKforMeshv500src.orig/CMake/GenerateSESProject.cmake	2020-11-18 06:43:36.000000000 +0000
++++ nrf5SDKforMeshv500src/CMake/GenerateSESProject.cmake	2020-11-18 16:20:43.000000000 +0000
+@@ -12,6 +12,7 @@
+ set(nrf52833_xxAA_STARTUP_FILE "${SDK_ROOT}/modules/nrfx/mdk/ses_startup_nrf52833.s")
+ set(nrf52840_xxAA_STARTUP_FILE "${SDK_ROOT}/modules/nrfx/mdk/ses_startup_nrf52840.s")
+ set(SES_COMMON_STARTUP_FILE "${SDK_ROOT}/modules/nrfx/mdk/ses_startup_nrf_common.s")
++set(DIR_OF_THIS_FILE ${CMAKE_CURRENT_LIST_DIR})
+ 
+ function (add_ses_project TARGET_NAME)
+     if (GENERATE_SES_PROJECTS)
+@@ -29,15 +30,14 @@
+             endif()
+         endforeach ()
+         # We'll remove the GCC one in python
+-        set(target_sources ${target_sources} ${${PLATFORM}_STARTUP_FILE})
+-        set(target_sources ${target_sources} ${SES_COMMON_STARTUP_FILE} "${CMAKE_CURRENT_SOURCE_DIR}/include/sdk_config.h")
++        set(target_sources ${target_sources} ${${PLATFORM}_STARTUP_FILE} ${SES_COMMON_STARTUP_FILE} "${CMAKE_CURRENT_SOURCE_DIR}/sdk_config.h")
+         set(target_defines NO_VTOR_CONFIG ${target_defines})
+ 
+         # Remove duplicates such as model_common.c
+         list(REMOVE_DUPLICATES target_sources)
+         list(REMOVE_DUPLICATES target_include_dirs)
+ 
+-        file(RELATIVE_PATH default_sdk_path ${CMAKE_CURRENT_SOURCE_DIR} "${CMAKE_SOURCE_DIR}/../nRF5_SDK_17.0.2_d674dde")
++        file(RELATIVE_PATH default_sdk_path ${CMAKE_CURRENT_SOURCE_DIR} "${SDK_ROOT}")
+ 
+         set(target_sources_with_macro "")
+         foreach (target_source IN ITEMS ${target_sources})
+@@ -65,12 +65,12 @@
+     },
+     \"platform\": {
+         \"name\": \"${PLATFORM}\",
+-        \"definition_file\": \"${CMAKE_SOURCE_DIR}/tools/configuration/platforms.json\"
++        \"definition_file\": \"${DIR_OF_THIS_FILE}/../tools/configuration/platforms.json\"
+     },
+     \"softdevice\": {
+         \"name\": \"${SOFTDEVICE}\",
+         \"hex_file\": \"${sd_hex}\",
+-        \"definition_file\": \"${CMAKE_SOURCE_DIR}/tools/configuration/softdevices.json\"
++        \"definition_file\": \"${DIR_OF_THIS_FILE}/../tools/configuration/softdevices.json\"
+     }
+ }")
+ 
+diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv500src.orig/CMake/Nrfjprog.cmake nrf5SDKforMeshv500src/CMake/Nrfjprog.cmake
+--- nrf5SDKforMeshv500src.orig/CMake/Nrfjprog.cmake	2020-11-18 06:43:36.000000000 +0000
++++ nrf5SDKforMeshv500src/CMake/Nrfjprog.cmake	2020-11-18 16:21:45.000000000 +0000
+@@ -5,30 +5,7 @@
+     mergehex)
+ 
+ if (NRFJPROG AND MERGEHEX AND PYTHON_EXECUTABLE)
+-    add_custom_target(merge)
+-    function(add_flash_target target)
+-        # Both the manual <merge> and <flash> target and depends on
+-        # the custom command that generates the merged hexfile.
+-        add_custom_target(merge_${target}
+-            DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${target}_merged.hex)
+-
+-        add_dependencies(merge merge_${target})
+-
+-        add_custom_target(app_flash_${target}
+-            COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CONFIG_DIR}/nrfjprog.py ${CMAKE_CURRENT_BINARY_DIR}/${target}.hex --sectorerase
+-            USES_TERMINAL
+-            DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${target}.hex)
+-
+-        add_custom_target(flash_${target}
+-            COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CONFIG_DIR}/nrfjprog.py ${CMAKE_CURRENT_BINARY_DIR}/${target}_merged.hex --chiperase
+-            USES_TERMINAL
+-            DEPENDS ${CMAKE_CURRENT_BINARY_DIR}/${target}_merged.hex)
+-
+-        add_custom_command(OUTPUT ${CMAKE_CURRENT_BINARY_DIR}/${target}_merged.hex
+-            COMMAND ${MERGEHEX} -m ${${SOFTDEVICE}_HEX_FILE} ${CMAKE_CURRENT_BINARY_DIR}/${target}.hex -o ${CMAKE_CURRENT_BINARY_DIR}/${target}_merged.hex
+-            DEPENDS ${target}
+-            VERBATIM)
+-    endfunction(add_flash_target)
++    # removed as not required
+ else ()
+     message(STATUS "Could not find nRFx command line tools (`nrfjprog` and `mergehex`).
+    See https://infocenter.nordicsemi.com/topic/ug_nrf5x_cltools/UG/cltools/nrf5x_installation.html.
+diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv500src.orig/CMake/SES/SESGenerator.py nrf5SDKforMeshv500src/CMake/SES/SESGenerator.py
+--- nrf5SDKforMeshv500src.orig/CMake/SES/SESGenerator.py	2020-11-18 06:43:36.000000000 +0000
++++ nrf5SDKforMeshv500src/CMake/SES/SESGenerator.py	2020-11-18 16:22:53.000000000 +0000
+@@ -88,7 +88,6 @@
+     Group(name="Mesh stack", files=[], match_string="mesh/stack"),
+     Group(name="GATT", files=[], match_string="mesh/gatt"),
+     Group(name="DFU", files=[], match_string="mesh/dfu"),
+-    Group(name="Toolchain", files=[File("$(StudioDir)/source/thumb_crt0.s")], match_string="toolchain"),
+     Group(name="Access", files=[], match_string="mesh/access"),
+     Group(name="Bearer", files=[], match_string="mesh/bearer"),
+     Group(name="SEGGER RTT", files=[], match_string="rtt"),
+@@ -99,7 +98,9 @@
+     Group(name="Health Model", files=[], match_string="models/foundation/health"),
+     Group(name="Generic OnOff Model", files=[], match_string="models/model_spec/generic_onoff"),
+     Group(name="Simple OnOff Model", files=[], match_string="models/vendor/simple_on_off"),
+-    Group(name="Remote provisioning Model", files=[], match_string="models/proprietary/pb_remote")]
++    Group(name="Remote provisioning Model", files=[], match_string="models/proprietary/pb_remote"),
++    Group(name="Toolchain", files=[File("$(StudioDir)/source/thumb_crt0.s")], match_string="toolchain"),
++]
+ 
+ def unix_relative_path_get(path1, path2):
+     if not path1.startswith('$('):
+diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv500src.orig/CMake/nrfjprog.py nrf5SDKforMeshv500src/CMake/nrfjprog.py
+--- nrf5SDKforMeshv500src.orig/CMake/nrfjprog.py	2020-11-18 06:43:36.000000000 +0000
++++ nrf5SDKforMeshv500src/CMake/nrfjprog.py	2020-11-18 16:23:45.000000000 +0000
+@@ -41,6 +41,8 @@
+ 
+ 
+ def select_devices(devices):
++    if len(devices) == 1:
++        return [devices[0]]
+     device_range = list(range(len(devices)))
+     number = None
+     while number is None:
+diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv500src.orig/CMake/toolchain/gccarmemb.cmake nrf5SDKforMeshv500src/CMake/toolchain/gccarmemb.cmake
+--- nrf5SDKforMeshv500src.orig/CMake/toolchain/gccarmemb.cmake	2020-11-18 06:43:36.000000000 +0000
++++ nrf5SDKforMeshv500src/CMake/toolchain/gccarmemb.cmake	2020-11-18 16:25:47.000000000 +0000
+@@ -42,12 +42,17 @@
+     set_target_properties(${target_name} PROPERTIES LINK_FLAGS ${link_flags})
+ endfunction (set_target_link_options)
+ 
+-function (create_hex executable)
++function (create_hex executable symbols_to_remove)
++    list(JOIN symbols_to_remove ";-R;" symbols_to_remove)
++    set(symbols_to_remove "-R;${symbols_to_remove}")
+     add_custom_command(
+         TARGET ${executable}
+         POST_BUILD
+-        COMMAND arm-none-eabi-objcopy -O ihex ${CMAKE_CURRENT_BINARY_DIR}/${executable}.elf ${CMAKE_CURRENT_BINARY_DIR}/${executable}.hex
+-        BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/${executable}.hex)
++        # Remove RTT symbol when building. See readme.md section "SEGGER RTT logging in bootloader and app"
++        COMMAND arm-none-eabi-objcopy ${symbols_to_remove} -O ihex ${CMAKE_CURRENT_BINARY_DIR}/${executable}.elf ${CMAKE_CURRENT_BINARY_DIR}/${executable}.hex
++        BYPRODUCTS ${CMAKE_CURRENT_BINARY_DIR}/${executable}.hex
++        VERBATIM
++    )
+ 
+     add_custom_command(
+         TARGET ${executable}

@@ -17,6 +17,6 @@ root="$( realpath $(dirname "${BASH_SOURCE[0]}") )"
 
 cd "$root/../toolchains/nRF5"
 
-diff -Naur -x *.DS_Store -x *.elf -x *.hex -x *.map -x *.o -x *.bin -x _build -x Output -x *.emSession nrf5SDKforMeshv420src.orig nrf5SDKforMeshv420src > "$root/sdk/nrf5SDKforMeshv420src.patch"
+diff -Naur -x *.DS_Store -x *.elf -x *.hex -x *.map -x *.o -x *.bin -x _build -x Output -x *.emSession nrf5SDKforMeshv500src.orig nrf5SDKforMeshv500src > "$root/sdk/nrf5SDKforMeshv500src.patch"
 
 echo "Done!"
