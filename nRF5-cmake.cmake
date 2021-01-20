@@ -17,11 +17,20 @@ if(NOT DEFINED SDK_ROOT)
     set(SDK_ROOT "${CMAKE_SOURCE_DIR}/toolchains/nRF5/${nRF5_SDK_VERSION}")
 endif()
 
+macro(ensure_prog var_name bin_name)
+    find_program(${var_name} ${bin_name} DOC "Path to the `${bin_name}` command line executable")
+    if(NRFJPROG)
+        message("-- Found ${bin_name}: ${${var_name}}")
+    else()
+        message(FATAL_ERROR "The path to the ${bin_name} utility (${var_name}) must be set.")
+    endif()
+endmacro()
+
 # find programs
-find_program(NRFJPROG nrfjprog DOC "Path to the `nrfjprog` command line executable")
-find_program(MERGEHEX mergehex DOC "Path to the `mergehex` command line executable")
-find_program(NRFUTIL nrfutil DOC "Path to the `nrfutil` command line executable")
-find_program(GIT git DOC "Path to `git` command line executable")
+ensure_prog(NRFJPROG nrfjprog)
+ensure_prog(MERGEHEX mergehex)
+ensure_prog(NRFUTIL nrfutil)
+ensure_prog(GIT git)
 if(${CMAKE_HOST_SYSTEM_NAME} STREQUAL "Windows")
     find_program(JLINK JLink DOC "Path to `JLink.exe` command line executable")
     find_program(JLINKGDBSERVER JLinkGDBServerCL DOC "Path to `JLinkGDBServerCL.exe` command line executable")
@@ -41,23 +50,16 @@ else()
     find_program(JLINKRTTCLIENT JLinkRTTClient DOC "Path to `JLinkRTTClient` command line executable")
 endif ()
 
-# check if all the necessary tools paths have been provided
-
-if (NOT NRFJPROG)
-    message(FATAL_ERROR "The path to the nrfjprog utility (NRFJPROG) must be set.")
-endif ()
-
-if (NOT MERGEHEX)
-    message(FATAL_ERROR "The path to the mergehex utility (MERGEHEX) must be set.")
-endif ()
-
-if (NOT NRFUTIL)
-    message(FATAL_ERROR "The path to the nrfutil utility (NRFUTIL) must be set.")
-endif ()
-
-if(NOT GIT)
-    message(FATAL_ERROR "The path to the git utility (GIT) must be set.")
+if(JLINK)
+    message("-- Found JLinkExe: ${JLINK}")
 endif()
+if(JLINKGDBSERVER)
+    message("-- Found JLinkGDBServer: ${JLINKGDBSERVER}")
+endif()
+if(JLINKRTTCLIENT)
+    message("-- Found JLinkRTTClient: ${JLINKRTTCLIENT}")
+endif()
+
 
 # Check if all the necessary variables have been set
 
