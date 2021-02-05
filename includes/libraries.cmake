@@ -536,6 +536,15 @@ macro(nRF5_addAppFIFO)
 
 endmacro()
 
+macro(nRF5_addSortlist)
+    list(APPEND INCLUDE_DIRS
+            "${SDK_ROOT}/components/libraries/sortlist"
+            )
+    list(APPEND SOURCE_FILES
+            "${SDK_ROOT}/components/libraries/sortlist/nrf_sortlist.c"
+            )
+endmacro()
+
 # adds app-level Timer libraries
 macro(nRF5_addAppTimer)
     list(APPEND INCLUDE_DIRS
@@ -544,6 +553,12 @@ macro(nRF5_addAppTimer)
     list(APPEND SOURCE_FILES
             "${SDK_ROOT}/components/libraries/timer/app_timer.c"
             )
+endmacro()
+
+macro(nRF5_addAppTimerV2)
+    nRF5_addRTC()
+    nRF5_addSortlist()
+    nRF5_addAppTimer()
 endmacro()
 
 # adds app UART library
