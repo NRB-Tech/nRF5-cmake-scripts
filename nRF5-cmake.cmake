@@ -19,7 +19,7 @@ endif()
 
 macro(ensure_prog var_name bin_name)
     find_program(${var_name} ${bin_name} DOC "Path to the `${bin_name}` command line executable")
-    if(NRFJPROG)
+    if(${var_name})
         message("-- Found ${bin_name}: ${${var_name}}")
     else()
         message(FATAL_ERROR "The path to the ${bin_name} utility (${var_name}) must be set.")
