@@ -387,7 +387,7 @@ function(nRF5_addBootloaderSoftDeviceAppMergeTarget EXECUTABLE_NAME VERSION_STRI
     add_custom_command(OUTPUT "${OP_FILE}"
             COMMAND ${NRFUTIL} settings generate --family ${BL_OPT_FAMILY} --application "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}.hex" --application-version-string "${VERSION_STRING}" --app-boot-validation ${APP_VALIDATION} --bootloader-version ${BOOTLOADER_VERSION} --bl-settings-version 2 --softdevice "${${SOFTDEVICE}_HEX_FILE}" --sd-boot-validation ${SD_VALIDATION}${private_key_param} "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}_bootloader_setting.hex"
             COMMAND ${MERGEHEX} -m ${BOOTLOADER_HEX} "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}_bootloader_setting.hex" "${${SOFTDEVICE}_HEX_FILE}" "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}.hex" -o "${OP_FILE}"
-            DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}.hex"
+            DEPENDS "${EXECUTABLE_NAME}"
             DEPENDS "${BOOTLOADER_HEX}"
             VERBATIM)
 endfunction()
