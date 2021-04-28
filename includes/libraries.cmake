@@ -691,6 +691,7 @@ endmacro()
 macro(nRF5_addBLEPeerManager)
     nRF5_addFDS()
     nRF5_addAtomicFlags()
+    nRF5_addMutex()
 
     list(APPEND INCLUDE_DIRS
             "${SDK_ROOT}/components/ble/peer_manager"
@@ -830,4 +831,18 @@ macro(nRF5_addTWIManager)
     list(APPEND SOURCE_FILES
       "${SDK_ROOT}/components/libraries/twi_mngr/nrf_twi_mngr.c"
       )
+endmacro()
+
+macro(nRF5_addFStorage)
+  nRF5_addAtomicFIFO()
+
+  list(APPEND INCLUDE_DIRS
+    "${SDK_ROOT}/components/libraries/fstorage"
+    )
+
+  list(APPEND SOURCE_FILES
+    "${SDK_ROOT}/components/libraries/fstorage/nrf_fstorage.c"
+    "${SDK_ROOT}/components/libraries/fstorage/nrf_fstorage_sd.c"
+    "${SDK_ROOT}/components/libraries/fstorage/nrf_fstorage_nvmc.c"
+    )
 endmacro()
