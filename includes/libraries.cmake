@@ -588,6 +588,16 @@ macro(nRF5_addAppButton)
 
 endmacro()
 
+macro(nRF5_addESB)
+    list(APPEND INCLUDE_DIRS
+            "${SDK_ROOT}/components/proprietary_rf/esb"
+            )
+
+    list(APPEND SOURCE_FILES
+            "${SDK_ROOT}/components/proprietary_rf/esb/nrf_esb.c"
+            )
+endmacro()
+
 # adds BSP (board support package) library
 macro(nRF5_addBSP WITH_BLE_BTN WITH_ANT_BTN WITH_NFC)
     list(APPEND INCLUDE_DIRS
