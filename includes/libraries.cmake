@@ -843,6 +843,17 @@ macro(nRF5_addTWIManager)
       )
 endmacro()
 
+macro(nRF5_addClock)
+    list(APPEND INCLUDE_DIRS
+            "${SDK_ROOT}/modules/nrfx/drivers/include"
+            )
+
+    list(APPEND SOURCE_FILES
+            "${SDK_ROOT}/integration/nrfx/legacy/nrf_drv_clock.c"
+            "${SDK_ROOT}/modules/nrfx/drivers/src/nrfx_clock.c"
+            )
+endmacro()
+
 macro(nRF5_addFStorage)
   nRF5_addAtomicFIFO()
 
