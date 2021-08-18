@@ -313,6 +313,7 @@ endfunction()
 macro(nRF5_addExecutable EXECUTABLE_NAME SOURCE_FILES INCLUDE_DIRECTORIES LINKER_FILE SYMBOLS_TO_REMOVE_FROM_HEX)
     set(_SOURCE_FILES ${SOURCE_FILES})
     set(_INCLUDE_DIRECTORIES ${INCLUDE_DIRECTORIES})
+    set(_DEFINES ${DEFINES})
     list(APPEND _SOURCE_FILES
         "${${PLATFORM}_SOURCE_FILES}"
         "${${nRF5_SDK_VERSION}_SOURCE_FILES}"
@@ -323,6 +324,11 @@ macro(nRF5_addExecutable EXECUTABLE_NAME SOURCE_FILES INCLUDE_DIRECTORIES LINKER
         "${${BOARD}_INCLUDE_DIRS}"
         "${${nRF5_SDK_VERSION}_INCLUDE_DIRS}"
     )
+    list(APPEND _DEFINES
+            ${USER_DEFINITIONS}
+            ${${PLATFORM}_DEFINES}
+            ${${BOARD}_DEFINES}
+            )
 
     list(REMOVE_DUPLICATES _SOURCE_FILES)
     list(REMOVE_DUPLICATES _INCLUDE_DIRECTORIES)
@@ -333,11 +339,7 @@ macro(nRF5_addExecutable EXECUTABLE_NAME SOURCE_FILES INCLUDE_DIRECTORIES LINKER
 
     set_target_link_options(${EXECUTABLE_NAME} "${LINKER_FILE}")
 
-    target_compile_definitions(${EXECUTABLE_NAME} PUBLIC
-            ${USER_DEFINITIONS}
-            ${${PLATFORM}_DEFINES}
-            ${${SOFTDEVICE}_DEFINES}
-            ${${BOARD}_DEFINES})
+    target_compile_definitions(${EXECUTABLE_NAME} PUBLIC ${_DEFINES})
 
     create_hex(${EXECUTABLE_NAME} "${SYMBOLS_TO_REMOVE_FROM_HEX}")
 
