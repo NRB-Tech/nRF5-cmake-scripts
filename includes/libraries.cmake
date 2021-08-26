@@ -730,7 +730,7 @@ endmacro()
 
 # adds Bluetooth Low Energy advertising support library
 macro(nRF5_addBLEPeerManager)
-    nRF5_addFDS()
+    nRF5_addFDS(TRUE)
     nRF5_addAtomicFlags()
     nRF5_addMutex()
 
