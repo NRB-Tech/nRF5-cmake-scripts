@@ -585,7 +585,13 @@ endmacro()
 macro(nRF5_addAppTimerV2)
     nRF5_addRTC()
     nRF5_addSortlist()
-    nRF5_addAppTimer()
+    list(APPEND INCLUDE_DIRS
+            "${SDK_ROOT}/components/libraries/timer"
+            )
+    list(APPEND SOURCE_FILES
+            "${SDK_ROOT}/components/libraries/timer/app_timer2.c"
+            "${SDK_ROOT}/components/libraries/timer/drv_rtc.c"
+            )
 endmacro()
 
 # adds app UART library
