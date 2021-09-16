@@ -865,9 +865,19 @@ macro(nRF5_addTWI)
       )
 
     list(APPEND SOURCE_FILES
-      "${SDK_ROOT}/integration/nrfx/legacy/nrf_drv_twi.c"
       "${SDK_ROOT}/modules/nrfx/drivers/src/nrfx_twi.c"
       )
+endmacro()
+
+macro(nRF5_addTWILegacy)
+    nRF5_addTWI()
+    list(APPEND INCLUDE_DIRS
+            "${SDK_ROOT}/integration/nrfx/legacy"
+            )
+
+    list(APPEND SOURCE_FILES
+            "${SDK_ROOT}/integration/nrfx/legacy/nrf_drv_twi.c"
+            )
 endmacro()
 
 macro(nRF5_addTWIManager)
