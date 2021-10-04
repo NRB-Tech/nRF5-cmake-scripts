@@ -45,6 +45,20 @@ macro(nRF5_addPowerMgmt)
 
 endmacro()
 
+# adds power lib
+macro(nRF5_addPower)
+    nRF5_addMutex()
+
+    list(APPEND INCLUDE_DIRS
+            "${SDK_ROOT}/modules/nrfx/drivers/include"
+            )
+
+    list(APPEND SOURCE_FILES
+            "${SDK_ROOT}/modules/nrfx/drivers/src/nrfx_power.c"
+            )
+
+endmacro()
+
 # adds balloc lib
 macro(nRF5_addBalloc)
     list(APPEND INCLUDE_DIRS
