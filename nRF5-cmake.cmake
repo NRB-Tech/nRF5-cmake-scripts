@@ -354,7 +354,7 @@ function(nRF5_addSoftDeviceAppMergeTarget EXECUTABLE_NAME)
     add_custom_target(${EXECUTABLE_NAME}_sd_app_merge DEPENDS "${OP_FILE}")
     add_custom_command(OUTPUT "${OP_FILE}"
             COMMAND ${MERGEHEX} -m "${${SOFTDEVICE}_HEX_FILE}" "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}.hex" -o "${OP_FILE}"
-            DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}_sd_app.hex"
+            DEPENDS "${EXECUTABLE_NAME}"
             VERBATIM)
 endfunction()
 
