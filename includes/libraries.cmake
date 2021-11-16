@@ -134,6 +134,7 @@ macro(nRF5_addHWRNGLegacy)
             )
 endmacro()
 
+# Adds the mbedTLS cmake project and adds the include path for `sdk_config.h` to the mbedtls targets
 macro(nRF5_includeMBEDTLS SDK_CONFIG_INCLUDE_DIR)
     if(NOT TARGET mbedtls)
         set(USE_STATIC_MBEDTLS_LIBRARY 1)
@@ -150,7 +151,7 @@ macro(nRF5_includeMBEDTLS SDK_CONFIG_INCLUDE_DIR)
     endif()
 endmacro()
 
-# LIB_TYPE is "tls", "x509", or "crypto". x509 contains crypto, and tls contains x509.
+# link mbedtls to your target. LIB_TYPE is "tls", "x509", or "crypto". x509 contains crypto, and tls contains x509.
 macro(nRF5_addMBED target LIB_TYPE)
     target_link_libraries(${target} PUBLIC mbed${LIB_TYPE})
     target_include_directories(${target} PRIVATE "${SDK_ROOT}/external/mbedtls/include")
