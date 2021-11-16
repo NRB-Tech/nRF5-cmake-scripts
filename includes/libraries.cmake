@@ -20,9 +20,20 @@ macro(nRF5_addAppError)
 
 endmacro()
 
+macro(nrf5_addSectionIter)
+    list(APPEND INCLUDE_DIRS
+            "${SDK_ROOT}/components/libraries/experimental_section_vars"
+            )
+
+    list(APPEND SOURCE_FILES
+            "${SDK_ROOT}/components/libraries/experimental_section_vars/nrf_section_iter.c"
+            )
+endmacro()
+
 # adds power management lib
 macro(nRF5_addPowerMgmt)
     nRF5_addMutex()
+    nrf5_addSectionIter()
 
     list(APPEND INCLUDE_DIRS
             "${SDK_ROOT}/components/libraries/pwr_mgmt"
@@ -30,6 +41,20 @@ macro(nRF5_addPowerMgmt)
 
     list(APPEND SOURCE_FILES
             "${SDK_ROOT}/components/libraries/pwr_mgmt/nrf_pwr_mgmt.c"
+            )
+
+endmacro()
+
+# adds power lib
+macro(nRF5_addPower)
+    nRF5_addMutex()
+
+    list(APPEND INCLUDE_DIRS
+            "${SDK_ROOT}/modules/nrfx/drivers/include"
+            )
+
+    list(APPEND SOURCE_FILES
+            "${SDK_ROOT}/modules/nrfx/drivers/src/nrfx_power.c"
             )
 
 endmacro()
@@ -214,21 +239,37 @@ macro(nRF5_addMemManager)
 
 endmacro()
 
-# adds app-level FDS (flash data storage) library
-macro(nRF5_addFDS)
+macro(nRF5_addFStorage INCLUDE_SD)
     nRF5_addAtomicFIFO()
+    nRF5_addNVMC()
+
+    list(APPEND INCLUDE_DIRS
+            "${SDK_ROOT}/components/libraries/fstorage"
+            )
+
+    list(APPEND SOURCE_FILES
+            "${SDK_ROOT}/components/libraries/fstorage/nrf_fstorage.c"
+            "${SDK_ROOT}/components/libraries/fstorage/nrf_fstorage_nvmc.c"
+            )
+
+    if(${INCLUDE_SD})
+        list(APPEND SOURCE_FILES
+                "${SDK_ROOT}/components/libraries/fstorage/nrf_fstorage_sd.c"
+                )
+    endif()
+endmacro()
+
+# adds app-level FDS (flash data storage) library
+macro(nRF5_addFDS INCLUDE_SD)
+    nRF5_addAtomicFIFO()
+    nRF5_addFStorage(${INCLUDE_SD})
 
     list(APPEND INCLUDE_DIRS
             "${SDK_ROOT}/components/libraries/fds"
-            "${SDK_ROOT}/components/libraries/fstorage"
-            "${SDK_ROOT}/components/libraries/experimental_section_vars"
             )
 
     list(APPEND SOURCE_FILES
             "${SDK_ROOT}/components/libraries/fds/fds.c"
-            "${SDK_ROOT}/components/libraries/fstorage/nrf_fstorage.c"
-            "${SDK_ROOT}/components/libraries/fstorage/nrf_fstorage_sd.c"
-            "${SDK_ROOT}/components/libraries/fstorage/nrf_fstorage_nvmc.c"
             )
 endmacro()
 
@@ -559,7 +600,13 @@ endmacro()
 macro(nRF5_addAppTimerV2)
     nRF5_addRTC()
     nRF5_addSortlist()
-    nRF5_addAppTimer()
+    list(APPEND INCLUDE_DIRS
+            "${SDK_ROOT}/components/libraries/timer"
+            )
+    list(APPEND SOURCE_FILES
+            "${SDK_ROOT}/components/libraries/timer/app_timer2.c"
+            "${SDK_ROOT}/components/libraries/timer/drv_rtc.c"
+            )
 endmacro()
 
 # adds app UART library
@@ -587,6 +634,16 @@ macro(nRF5_addAppButton)
             "${SDK_ROOT}/components/libraries/button/app_button.c"
             )
 
+endmacro()
+
+macro(nRF5_addESB)
+    list(APPEND INCLUDE_DIRS
+            "${SDK_ROOT}/components/proprietary_rf/esb"
+            )
+
+    list(APPEND SOURCE_FILES
+            "${SDK_ROOT}/components/proprietary_rf/esb/nrf_esb.c"
+            )
 endmacro()
 
 # adds BSP (board support package) library
@@ -625,6 +682,7 @@ macro(nRF5_addSoftDeviceSupport)
     nRF5_addStrError()
     nRF5_addAppError()
     nRF5_addAtomicFlags()
+    nrf5_addSectionIter()
 
     list(APPEND INCLUDE_DIRS
             "${SDK_ROOT}/components/ble/common"
@@ -633,7 +691,6 @@ macro(nRF5_addSoftDeviceSupport)
 
     list(APPEND SOURCE_FILES
             "${SDK_ROOT}/components/libraries/util/app_util_platform.c"
-            "${SDK_ROOT}/components/libraries/experimental_section_vars/nrf_section_iter.c"
             "${SDK_ROOT}/components/softdevice/common/nrf_sdh_soc.c"
             "${SDK_ROOT}/components/softdevice/common/nrf_sdh_ble.c"
             "${SDK_ROOT}/components/softdevice/common/nrf_sdh.c"
@@ -641,6 +698,10 @@ macro(nRF5_addSoftDeviceSupport)
             "${SDK_ROOT}/components/ble/common/ble_conn_params.c"
             "${SDK_ROOT}/components/ble/common/ble_advdata.c"
             "${SDK_ROOT}/components/ble/common/ble_srv_common.c"
+            )
+
+    list(APPEND DEFINES
+            ${${SOFTDEVICE}_DEFINES}
             )
 endmacro()
 
@@ -690,8 +751,9 @@ endmacro()
 
 # adds Bluetooth Low Energy advertising support library
 macro(nRF5_addBLEPeerManager)
-    nRF5_addFDS()
+    nRF5_addFDS(TRUE)
     nRF5_addAtomicFlags()
+    nRF5_addMutex()
 
     list(APPEND INCLUDE_DIRS
             "${SDK_ROOT}/components/ble/peer_manager"
@@ -818,9 +880,19 @@ macro(nRF5_addTWI)
       )
 
     list(APPEND SOURCE_FILES
-      "${SDK_ROOT}/integration/nrfx/legacy/nrf_drv_twi.c"
       "${SDK_ROOT}/modules/nrfx/drivers/src/nrfx_twi.c"
       )
+endmacro()
+
+macro(nRF5_addTWILegacy)
+    nRF5_addTWI()
+    list(APPEND INCLUDE_DIRS
+            "${SDK_ROOT}/integration/nrfx/legacy"
+            )
+
+    list(APPEND SOURCE_FILES
+            "${SDK_ROOT}/integration/nrfx/legacy/nrf_drv_twi.c"
+            )
 endmacro()
 
 macro(nRF5_addTWIManager)
@@ -832,3 +904,15 @@ macro(nRF5_addTWIManager)
       "${SDK_ROOT}/components/libraries/twi_mngr/nrf_twi_mngr.c"
       )
 endmacro()
+
+macro(nRF5_addClock)
+    list(APPEND INCLUDE_DIRS
+            "${SDK_ROOT}/modules/nrfx/drivers/include"
+            )
+
+    list(APPEND SOURCE_FILES
+            "${SDK_ROOT}/integration/nrfx/legacy/nrf_drv_clock.c"
+            "${SDK_ROOT}/modules/nrfx/drivers/src/nrfx_clock.c"
+            )
+endmacro()
+

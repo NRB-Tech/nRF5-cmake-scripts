@@ -313,6 +313,7 @@ endfunction()
 macro(nRF5_addExecutable EXECUTABLE_NAME SOURCE_FILES INCLUDE_DIRECTORIES LINKER_FILE SYMBOLS_TO_REMOVE_FROM_HEX)
     set(_SOURCE_FILES ${SOURCE_FILES})
     set(_INCLUDE_DIRECTORIES ${INCLUDE_DIRECTORIES})
+    set(_DEFINES ${DEFINES})
     list(APPEND _SOURCE_FILES
         "${${PLATFORM}_SOURCE_FILES}"
         "${${nRF5_SDK_VERSION}_SOURCE_FILES}"
@@ -323,6 +324,11 @@ macro(nRF5_addExecutable EXECUTABLE_NAME SOURCE_FILES INCLUDE_DIRECTORIES LINKER
         "${${BOARD}_INCLUDE_DIRS}"
         "${${nRF5_SDK_VERSION}_INCLUDE_DIRS}"
     )
+    list(APPEND _DEFINES
+            ${USER_DEFINITIONS}
+            ${${PLATFORM}_DEFINES}
+            ${${BOARD}_DEFINES}
+            )
 
     list(REMOVE_DUPLICATES _SOURCE_FILES)
     list(REMOVE_DUPLICATES _INCLUDE_DIRECTORIES)
@@ -333,11 +339,7 @@ macro(nRF5_addExecutable EXECUTABLE_NAME SOURCE_FILES INCLUDE_DIRECTORIES LINKER
 
     set_target_link_options(${EXECUTABLE_NAME} "${LINKER_FILE}")
 
-    target_compile_definitions(${EXECUTABLE_NAME} PUBLIC
-            ${USER_DEFINITIONS}
-            ${${PLATFORM}_DEFINES}
-            ${${SOFTDEVICE}_DEFINES}
-            ${${BOARD}_DEFINES})
+    target_compile_definitions(${EXECUTABLE_NAME} PUBLIC ${_DEFINES})
 
     create_hex(${EXECUTABLE_NAME} "${SYMBOLS_TO_REMOVE_FROM_HEX}")
 
@@ -352,7 +354,7 @@ function(nRF5_addSoftDeviceAppMergeTarget EXECUTABLE_NAME)
     add_custom_target(${EXECUTABLE_NAME}_sd_app_merge DEPENDS "${OP_FILE}")
     add_custom_command(OUTPUT "${OP_FILE}"
             COMMAND ${MERGEHEX} -m "${${SOFTDEVICE}_HEX_FILE}" "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}.hex" -o "${OP_FILE}"
-            DEPENDS "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}_sd_app.hex"
+            DEPENDS "${EXECUTABLE_NAME}"
             VERBATIM)
 endfunction()
 
@@ -373,7 +375,7 @@ function(nRF5_addBootloaderSoftDeviceAppMergeTarget EXECUTABLE_NAME VERSION_STRI
     endif()
     nRF5_get_BL_OPT_SD_REQ(${PREVIOUS_SOFTDEVICES})
     set(OP_FILE "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}_bl_sd_app.hex")
-    set(BOOTLOADER_HEX "${SECURE_BOOTLOADER_SRC_DIR}/_build_${EXECUTABLE_NAME}/bootloader.hex")
+    set(BOOTLOADER_HEX "${SECURE_BOOTLOADER_PATH_PREFIX}${EXECUTABLE_NAME}/bootloader.hex")
     if(${APP_VALIDATION} STREQUAL "VALIDATE_ECDSA_P256_SHA256" OR ${SD_VALIDATION} STREQUAL "VALIDATE_ECDSA_P256_SHA256")
         if(${PRIVATE_KEY} STREQUAL "")
             message(FATAL_ERROR "PRIVATE_KEY parameter must be supplied when using VALIDATE_ECDSA_P256_SHA256 validation")
@@ -401,7 +403,7 @@ function(nRF5_addBootloaderSoftDeviceMergeTarget EXECUTABLE_NAME VERSION_STRING 
     endif()
     nRF5_get_BL_OPT_SD_REQ(${PREVIOUS_SOFTDEVICES})
     set(OP_FILE "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}_bl_sd.hex")
-    set(BOOTLOADER_HEX "${SECURE_BOOTLOADER_SRC_DIR}/_build_${EXECUTABLE_NAME}/bootloader.hex")
+    set(BOOTLOADER_HEX "${SECURE_BOOTLOADER_PATH_PREFIX}${EXECUTABLE_NAME}/bootloader.hex")
     if(${APP_VALIDATION} STREQUAL "VALIDATE_ECDSA_P256_SHA256" OR ${SD_VALIDATION} STREQUAL "VALIDATE_ECDSA_P256_SHA256")
         if(${PRIVATE_KEY} STREQUAL "")
             message(FATAL_ERROR "PRIVATE_KEY parameter must be supplied when using VALIDATE_ECDSA_P256_SHA256 validation")
@@ -422,7 +424,7 @@ endfunction()
 function(nRF5_addBootloaderOnlyTarget PRIVATE_KEY PREVIOUS_SOFTDEVICES SD_VALIDATION BOOTLOADER_VERSION PUBLIC_KEY_C_PATH BUILD_FLAGS)
     nRF5_addSecureBootloader(generic ${PUBLIC_KEY_C_PATH} ${BUILD_FLAGS})
     set(OP_FILE "${CMAKE_CURRENT_BINARY_DIR}/generic_bl_sd.hex")
-    set(BOOTLOADER_HEX "${SECURE_BOOTLOADER_SRC_DIR}/_build_generic/bootloader.hex")
+    set(BOOTLOADER_HEX "${SECURE_BOOTLOADER_PATH_PREFIX}generic/bootloader.hex")
     add_custom_target(generic_bl_sd DEPENDS "${OP_FILE}")
     add_custom_command(OUTPUT "${OP_FILE}"
             COMMAND ${NRFUTIL} settings generate --family ${BL_OPT_FAMILY} --bootloader-version ${BOOTLOADER_VERSION} --bl-settings-version 2 --softdevice "${${SOFTDEVICE}_HEX_FILE}" --sd-boot-validation ${SD_VALIDATION} --key-file "${PRIVATE_KEY}" "${CMAKE_CURRENT_BINARY_DIR}/generic_bootloader_setting.hex"
@@ -441,7 +443,7 @@ function(_addDFUPackageTarget INCLUDE_BL_SD EXECUTABLE_NAME VERSION_STRING PRIVA
     set(PKG_OPT --sd-req ${BL_OPT_SD_REQ} --hw-version ${BL_OPT_HW_VERSION} --application "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}.hex" --application-version-string "${VERSION_STRING}" --app-boot-validation ${APP_VALIDATION} --key-file "${PRIVATE_KEY}")
     set(DEPENDS ${EXECUTABLE_NAME})
     if(${INCLUDE_BL_SD})
-        list(APPEND PKG_OPT --sd-id ${BL_OPT_SD_ID} --bootloader "${SECURE_BOOTLOADER_SRC_DIR}/_build_${EXECUTABLE_NAME}/bootloader.hex" --bootloader-version ${BOOTLOADER_VERSION} --softdevice "${${SOFTDEVICE}_HEX_FILE}" --sd-boot-validation ${SD_VALIDATION})
+        list(APPEND PKG_OPT --sd-id ${BL_OPT_SD_ID} --bootloader "${SECURE_BOOTLOADER_PATH_PREFIX}${EXECUTABLE_NAME}/bootloader.hex" --bootloader-version ${BOOTLOADER_VERSION} --softdevice "${${SOFTDEVICE}_HEX_FILE}" --sd-boot-validation ${SD_VALIDATION})
         list(APPEND DEPENDS ${EXECUTABLE_NAME}_bl)
         set(TARGET_SUFFIX _bl_sd_app_pkg)
         set(FILENAME_SUFFIX _bl_sd_app)
@@ -474,7 +476,7 @@ function(nRF5_print_size EXECUTABLE_NAME linker_file include_bootloader)
     endif()
     if(${include_bootloader})
         set(target_depend ${EXECUTABLE_NAME}_bl_sd_app_merge)
-        list(APPEND options -b "${SECURE_BOOTLOADER_SRC_DIR}/_build_${EXECUTABLE_NAME}/bootloader.out")
+        list(APPEND options -b "${SECURE_BOOTLOADER_PATH_PREFIX}${EXECUTABLE_NAME}/bootloader.out")
     endif()
     if(IC STREQUAL "nRF52840")
         set(MAXRAM 262144)
