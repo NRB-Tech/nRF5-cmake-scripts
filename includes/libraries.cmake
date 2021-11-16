@@ -259,7 +259,7 @@ macro(nRF5_addFStorage INCLUDE_SD)
     endif()
 endmacro()
 
-# adds app-level FDS (flash data storage) library
+# adds app-level FDS (flash data storage) library. INCLUDE_SD parameter is boolean, pass true if you use softdevice.
 macro(nRF5_addFDS INCLUDE_SD)
     nRF5_addAtomicFIFO()
     nRF5_addFStorage(${INCLUDE_SD})
