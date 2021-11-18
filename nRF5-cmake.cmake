@@ -167,7 +167,7 @@ macro(nRF5_setup)
     endif()
 
     # Needed tools for generating documentation and serial PyACI
-    find_package(PythonInterp)
+    find_package(Python3 COMPONENTS Interpreter)
     find_package(Doxygen)
     find_program(DOT_EXECUTABLE "dot" PATHS ENV PATH)
     find_program(MSCGEN_EXECUTABLE "mscgen" PATHS ENV PATH)
@@ -296,7 +296,7 @@ function(nRF5_addFlashTarget isApp targetName hexFile)
         set(OPT "--chiperase")
     endif()
     add_custom_target(${targetName}_flash
-            COMMAND ${PYTHON_EXECUTABLE} ${CMAKE_CONFIG_DIR}/nrfjprog.py "${hexFile}" ${OPT}
+            COMMAND ${Python3_EXECUTABLE} ${CMAKE_CONFIG_DIR}/nrfjprog.py "${hexFile}" ${OPT}
             USES_TERMINAL
             DEPENDS ${targetName})
 endfunction()
