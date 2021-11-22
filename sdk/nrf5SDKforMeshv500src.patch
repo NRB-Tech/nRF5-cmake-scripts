@@ -1,3 +1,12 @@
+diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv500src.orig/CMake/FindSDK.cmake nrf5SDKforMeshv500src/CMake/FindSDK.cmake
+--- nrf5SDKforMeshv500src.orig/CMake/FindSDK.cmake	2020-11-18 06:43:36.000000000 +0000
++++ nrf5SDKforMeshv500src/CMake/FindSDK.cmake	2021-11-22 15:01:49.000000000 +0000
+@@ -1,4 +1,4 @@
+-set(nRF5_SDK_VERSION "nRF5_SDK_17.0.2_d674dde" CACHE STRING "nRF5 SDK")
++set(nRF5_SDK_VERSION "nRF5_SDK_17.1.0_ddde560" CACHE STRING "nRF5 SDK")
+ 
+ if (NOT nRF5_SDK_VERSION)
+     message(FATAL_ERROR "You need to specifiy a nRF5_SDK_VERSION to use.")
 diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv500src.orig/CMake/GenerateSESProject.cmake nrf5SDKforMeshv500src/CMake/GenerateSESProject.cmake
 --- nrf5SDKforMeshv500src.orig/CMake/GenerateSESProject.cmake	2020-11-18 06:43:36.000000000 +0000
 +++ nrf5SDKforMeshv500src/CMake/GenerateSESProject.cmake	2020-11-18 16:20:43.000000000 +0000
@@ -79,7 +88,7 @@ diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' 
     See https://infocenter.nordicsemi.com/topic/ug_nrf5x_cltools/UG/cltools/nrf5x_installation.html.
 diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv500src.orig/CMake/SES/SESGenerator.py nrf5SDKforMeshv500src/CMake/SES/SESGenerator.py
 --- nrf5SDKforMeshv500src.orig/CMake/SES/SESGenerator.py	2020-11-18 06:43:36.000000000 +0000
-+++ nrf5SDKforMeshv500src/CMake/SES/SESGenerator.py	2020-11-18 16:22:53.000000000 +0000
++++ nrf5SDKforMeshv500src/CMake/SES/SESGenerator.py	2021-11-22 15:01:49.000000000 +0000
 @@ -88,7 +88,6 @@
      Group(name="Mesh stack", files=[], match_string="mesh/stack"),
      Group(name="GATT", files=[], match_string="mesh/gatt"),
@@ -99,9 +108,18 @@ diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' 
  
  def unix_relative_path_get(path1, path2):
      if not path1.startswith('$('):
+@@ -169,7 +170,7 @@
+     config["target"]["ram"] = calculate_ram_limits(config)
+     config["platform"]["fpu"] = config["platform"]["config"]["arch"] == "cortex-m4f"
+     config["softdevice"]["hex_file"] = unix_relative_path_get(config["softdevice"]["hex_file"], out_dir)
+-    config["sdk_default_path"] = unix_relative_path_get('../../../nRF5_SDK_17.0.2_d674dde', out_dir)
++    config["sdk_default_path"] = unix_relative_path_get('../../../nRF5_SDK_17.1.0_ddde560', out_dir)
+     s = ""
+ 
+     with open("ses.xml", "r") as f:
 diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv500src.orig/CMake/nrfjprog.py nrf5SDKforMeshv500src/CMake/nrfjprog.py
 --- nrf5SDKforMeshv500src.orig/CMake/nrfjprog.py	2020-11-18 06:43:36.000000000 +0000
-+++ nrf5SDKforMeshv500src/CMake/nrfjprog.py	2020-11-18 16:23:45.000000000 +0000
++++ nrf5SDKforMeshv500src/CMake/nrfjprog.py	2021-11-18 23:01:34.000000000 +0000
 @@ -41,6 +41,8 @@
  
  
@@ -111,6 +129,37 @@ diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' 
      device_range = list(range(len(devices)))
      number = None
      while number is None:
+diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv500src.orig/CMake/sdk/nRF5_SDK_17.1.0_ddde560.cmake nrf5SDKforMeshv500src/CMake/sdk/nRF5_SDK_17.1.0_ddde560.cmake
+--- nrf5SDKforMeshv500src.orig/CMake/sdk/nRF5_SDK_17.1.0_ddde560.cmake	1970-01-01 01:00:00.000000000 +0100
++++ nrf5SDKforMeshv500src/CMake/sdk/nRF5_SDK_17.1.0_ddde560.cmake	2021-11-22 15:01:49.000000000 +0000
+@@ -0,0 +1,27 @@
++set(nRF5_SDK_17.1.0_ddde560_SOURCE_FILES
++    "${SDK_ROOT}/components/libraries/util/app_error.c"
++    "${SDK_ROOT}/components/libraries/util/app_util_platform.c")
++
++set(nRF5_SDK_17.1.0_ddde560_INCLUDE_DIRS
++    "${SDK_ROOT}/integration/nrfx"
++    "${SDK_ROOT}/components/libraries/util"
++    "${SDK_ROOT}/components/libraries/timer"
++    "${SDK_ROOT}/components/libraries/log"
++    "${SDK_ROOT}/components/libraries/log/src"
++    "${SDK_ROOT}/components/libraries/experimental_section_vars"
++    "${SDK_ROOT}/components/libraries/delay"
++    "${SDK_ROOT}/modules/nrfx"
++    "${SDK_ROOT}/modules/nrfx/drivers/include"
++    "${SDK_ROOT}/modules/nrfx/drivers"
++    "${SDK_ROOT}/modules/nrfx/hal"
++    "${SDK_ROOT}/modules/nrfx/mdk")
++
++if (TOOLCHAIN STREQUAL "armcc")
++    set(nRF5_SDK_17.1.0_ddde560_SOURCE_FILES
++        ${nRF5_SDK_17.1.0_ddde560_SOURCE_FILES}
++        "${SDK_ROOT}/components/libraries/util/app_error_handler_keil.c")
++else ()
++    set(nRF5_SDK_17.1.0_ddde560_SOURCE_FILES
++        ${nRF5_SDK_17.1.0_ddde560_SOURCE_FILES}
++        "${SDK_ROOT}/components/libraries/util/app_error_handler_gcc.c")
++endif ()
 diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv500src.orig/CMake/toolchain/gccarmemb.cmake nrf5SDKforMeshv500src/CMake/toolchain/gccarmemb.cmake
 --- nrf5SDKforMeshv500src.orig/CMake/toolchain/gccarmemb.cmake	2020-11-18 06:43:36.000000000 +0000
 +++ nrf5SDKforMeshv500src/CMake/toolchain/gccarmemb.cmake	2020-11-18 16:25:47.000000000 +0000
