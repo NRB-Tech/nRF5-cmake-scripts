@@ -6,7 +6,7 @@ This project originally forked from [cmake-nRF5x](https://github.com/Polidea/cma
 
 Currently supports:
 
-* nRF5 SDK v17.0.2
+* nRF5 SDK v17.1.0
 * nRF5 Mesh SDK v5.0.0
 
 ## Dependencies
