@@ -162,15 +162,17 @@ diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' 
 +endif ()
 diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv500src.orig/CMake/toolchain/gccarmemb.cmake nrf5SDKforMeshv500src/CMake/toolchain/gccarmemb.cmake
 --- nrf5SDKforMeshv500src.orig/CMake/toolchain/gccarmemb.cmake	2020-11-18 06:43:36.000000000 +0000
-+++ nrf5SDKforMeshv500src/CMake/toolchain/gccarmemb.cmake	2020-11-18 16:25:47.000000000 +0000
-@@ -42,12 +42,17 @@
++++ nrf5SDKforMeshv500src/CMake/toolchain/gccarmemb.cmake	2022-03-09 16:03:51.000000000 +0000
+@@ -42,12 +42,19 @@
      set_target_properties(${target_name} PROPERTIES LINK_FLAGS ${link_flags})
  endfunction (set_target_link_options)
  
 -function (create_hex executable)
 +function (create_hex executable symbols_to_remove)
-+    list(JOIN symbols_to_remove ";-R;" symbols_to_remove)
-+    set(symbols_to_remove "-R;${symbols_to_remove}")
++    if(symbols_to_remove)
++        list(JOIN symbols_to_remove ";-R;" symbols_to_remove)
++        set(symbols_to_remove "-R;${symbols_to_remove}")
++    endif()
      add_custom_command(
          TARGET ${executable}
          POST_BUILD
