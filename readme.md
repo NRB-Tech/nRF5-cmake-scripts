@@ -114,12 +114,10 @@ and also copy in all the `SEGGER_RTT_CONFIG_...` defines from `sdk_config.h`/`ap
 In the nRF52 SDK, `modules/nrfx/mdk/nrf_common.ld`, add the following before `.data : AT (__etext)`:
 
 ```
-.rtt:
+.rtt (NOLOAD):
 {
 } > RAM
 ```
-
-This symbol must be removed from the hex file, to do this ensure ".rtt" is in the list of symbols to remove from hex passed to `nRF5_addExecutable` (see example project).
 
 Ensure the RAM start and size are aligned in the app and bootloader linker scripts.
 
@@ -127,9 +125,7 @@ In the nRF52 SDK, `external/segger_rtt/SEGGER_RTT.c`, change the `SEGGER_RTT_Ini
 
 ```c
 void SEGGER_RTT_Init (void) {
-    if(_SEGGER_RTT.acID[0] != 'S') {
-        _DoInit();
-    }
+    INIT();
 }
 ```
 
