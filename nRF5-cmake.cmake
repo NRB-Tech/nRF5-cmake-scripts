@@ -168,6 +168,8 @@ macro(nRF5_setup)
 
     # Needed tools for generating documentation and serial PyACI
     find_package(Python3 COMPONENTS Interpreter)
+    # set PYTHON_EXECUTABLE for Nordic mesh SDK
+    set(PYTHON_EXECUTABLE "${Python3_EXECUTABLE}")
     find_package(Doxygen)
     find_program(DOT_EXECUTABLE "dot" PATHS ENV PATH)
     find_program(MSCGEN_EXECUTABLE "mscgen" PATHS ENV PATH)
