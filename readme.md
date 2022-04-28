@@ -37,7 +37,7 @@ After setting up your CMakeLists.txt as described below, or using the example pr
 ```shell
 cmake -Bcmake-build-download -G "Unix Makefiles"
 cmake --build cmake-build-download/ --target download
-cmake -Bcmake-build-debug -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug
+cmake -Bcmake-build-debug --toolchain nRF5-cmake-scripts/nRF5-cmake-toolchain.cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug
 ```
 
 This will download the dependencies and then generate the build files using the toolchain.
@@ -73,7 +73,7 @@ After setup you can use cmake as usual:
 1. Generate the build files:
 
 	```shell
-	cmake -Bcmake-build-debug -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug
+	cmake -Bcmake-build-debug --toolchain nRF5-cmake-scripts/nRF5-cmake-toolchain.cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Debug
 	```
 
 2. Build your app:

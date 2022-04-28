@@ -78,10 +78,6 @@ endif()
 # must be set in file (not macro) scope (in macro would point to parent CMake directory)
 set(nRF5_CMAKE_PATH ${CMAKE_CURRENT_LIST_DIR})
 
-# must be set before project, otherwise causes linking issues
-set(CMAKE_SYSTEM_NAME "Generic")
-set(CMAKE_SYSTEM_PROCESSOR "ARM")
-
 # prevent mesh SDK warning
 set(PATCH_EXECUTABLE "patch")
 
@@ -164,6 +160,10 @@ macro(nRF5_setup)
     if(TARGET download)
         message(WARNING "Run the 'download' target to download dependencies")
         return()
+    endif()
+
+    if(NOT CMAKE_TOOLCHAIN_FILE MATCHES "nRF5-cmake-toolchain.cmake$")
+        message(WARNING "You are not specifying nRF5-cmake-toolchain.cmake as your toolchain using either --toolchain flag or -DCMAKE_TOOLCHAIN_FILE. nRF5-cmake will not cross-compile correctly.")
     endif()
 
     # Needed tools for generating documentation and serial PyACI

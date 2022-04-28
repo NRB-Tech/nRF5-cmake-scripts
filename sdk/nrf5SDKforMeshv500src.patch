@@ -162,8 +162,15 @@ diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' 
 +endif ()
 diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv500src.orig/CMake/toolchain/gccarmemb.cmake nrf5SDKforMeshv500src/CMake/toolchain/gccarmemb.cmake
 --- nrf5SDKforMeshv500src.orig/CMake/toolchain/gccarmemb.cmake	2020-11-18 06:43:36.000000000 +0000
-+++ nrf5SDKforMeshv500src/CMake/toolchain/gccarmemb.cmake	2022-03-09 16:03:51.000000000 +0000
-@@ -42,12 +42,19 @@
++++ nrf5SDKforMeshv500src/CMake/toolchain/gccarmemb.cmake	2022-04-28 11:54:13.000000000 +0100
+@@ -1,6 +1,3 @@
+-set(CMAKE_C_COMPILER arm-none-eabi-gcc)
+-set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
+-
+ set(data_flags "-ffunction-sections -fdata-sections -fno-strict-aliasing -fno-builtin --short-enums")
+ set(warning_flags "-Wall -Wno-attributes -Wno-format")
+ set(CMAKE_C_FLAGS_INIT "--std=gnu99 ${warning_flags} ${data_flags}")
+@@ -42,12 +39,19 @@
      set_target_properties(${target_name} PROPERTIES LINK_FLAGS ${link_flags})
  endfunction (set_target_link_options)
  
