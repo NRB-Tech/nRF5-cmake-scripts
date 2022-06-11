@@ -411,6 +411,16 @@ macro(nRF5_addPPI)
             )
 endmacro()
 
+macro(nRF5_addWDT)
+    list(APPEND INCLUDE_DIRS
+            "${SDK_ROOT}/modules/nrfx/drivers/include"
+            )
+
+    list(APPEND SOURCE_FILES
+            "${SDK_ROOT}/modules/nrfx/drivers/src/nrfx_wdt.c"
+            )
+endmacro()
+
 # adds timer driver
 macro(nRF5_addTimer)
     list(APPEND INCLUDE_DIRS
