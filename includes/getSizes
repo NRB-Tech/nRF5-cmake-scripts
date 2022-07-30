@@ -114,7 +114,7 @@ fi
 
 if [ -n "$SOFTDEVICE" ]; then
     linker_file=$(cat "$SOFTDEVICE")
-    flash_regex="SOFTDEVICE_FLASH \(rx\) : ORIGIN = 0x00001000, LENGTH = 0x([0-9a-f]{8})"
+    flash_regex="SOFTDEVICE_FLASH \(rx\) : ORIGIN = 0x00001000, LENGTH = 0x([0-9a-fA-F]{8})"
     if [[ $linker_file =~ $flash_regex ]]; then
         SOFTDEVICE_FLASH_SIZE=$((16#${BASH_REMATCH[1]}))
     else
@@ -122,7 +122,7 @@ if [ -n "$SOFTDEVICE" ]; then
         exit 1
     fi
 
-    ram_regex="RAM \(rwx\)[[:space:]]*: ORIGIN = 0x20([0-9a-f]{6})"
+    ram_regex="RAM \(rwx\)[[:space:]]*: ORIGIN = 0x20([0-9a-fA-F]{6})"
     if [[ $linker_file =~ $ram_regex ]]; then
         SOFTDEVICE_RAM_SIZE=$((16#${BASH_REMATCH[1]}))
     else
@@ -139,8 +139,8 @@ if [ -n "$FIRMWARE" ]; then
         echo "Error retrieving firmware size"
         exit 1
     fi
-    HEAP_SIZE=$(perl -0777 -ne "print \"\$1\" if /\.heap\s+0x0[0-9a-f]+\s+0x([0-9a-f]+)/s" "$MAP")
-    STACK_SIZE=$(perl -0777 -ne "print \"\$1\" if /\.stack_dummy\s+0x0[0-9a-f]+\s+0x([0-9a-f]+)/s" "$MAP")
+    HEAP_SIZE=$(perl -0777 -ne "print \"\$1\" if /\.heap\s+0x0[0-9a-fA-F]+\s+0x([0-9a-fA-F]+)/s" "$MAP")
+    STACK_SIZE=$(perl -0777 -ne "print \"\$1\" if /\.stack_dummy\s+0x0[0-9a-fA-F]+\s+0x([0-9a-fA-F]+)/s" "$MAP")
     HEAP_SIZE=$((16#$HEAP_SIZE))
     STACK_SIZE=$((16#$STACK_SIZE))
 
