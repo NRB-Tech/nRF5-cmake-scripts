@@ -728,6 +728,39 @@ macro(nRF5_addBLEAdvertising)
             )
 endmacro()
 
+# adds Bluetooth Low Energy scanning support library
+macro(nRF5_addBLEScan)
+    list(APPEND INCLUDE_DIRS
+            "${SDK_ROOT}/components/ble/nrf_ble_scan"
+            )
+
+    list(APPEND SOURCE_FILES
+            "${SDK_ROOT}/components/ble/nrf_ble_scan/nrf_ble_scan.c"
+            )
+endmacro()
+
+# adds Bluetooth Low Energy DB discovery library
+macro(nRF5_addBLEDBDiscovery)
+    list(APPEND INCLUDE_DIRS
+            "${SDK_ROOT}/components/ble/ble_db_discovery"
+            )
+
+    list(APPEND SOURCE_FILES
+            "${SDK_ROOT}/components/ble/ble_db_discovery/ble_db_discovery.c"
+            )
+endmacro()
+
+# adds Bluetooth Low Energy GATT queue library
+macro(nRF5_addBLEGQ)
+    list(APPEND INCLUDE_DIRS
+            "${SDK_ROOT}/components/ble/nrf_ble_gq"
+            )
+
+    list(APPEND SOURCE_FILES
+            "${SDK_ROOT}/components/ble/nrf_ble_gq/nrf_ble_gq.c"
+            )
+endmacro()
+
 # adds Bluetooth Low Energy Queued Write library
 macro(nRF5_addBLEQWR)
     list(APPEND INCLUDE_DIRS
