@@ -263,6 +263,7 @@ endmacro()
 macro(nRF5_addFDS INCLUDE_SD)
     nRF5_addAtomicFIFO()
     nRF5_addFStorage(${INCLUDE_SD})
+    nRF5_addCRC16()
 
     list(APPEND INCLUDE_DIRS
             "${SDK_ROOT}/components/libraries/fds"
@@ -291,6 +292,16 @@ macro(nRF5_addCRC32)
 
     list(APPEND SOURCE_FILES
             "${SDK_ROOT}/components/libraries/crc32/crc32.c"
+            )
+endmacro()
+
+macro(nRF5_addCRC16)
+    list(APPEND INCLUDE_DIRS
+            "${SDK_ROOT}/components/libraries/crc16"
+            )
+
+    list(APPEND SOURCE_FILES
+            "${SDK_ROOT}/components/libraries/crc16/crc16.c"
             )
 endmacro()
 
