@@ -465,6 +465,17 @@ macro(nRF5_addRTC)
             )
 endmacro()
 
+# adds pwm driver
+macro(nRF5_addPWM)
+    list(APPEND INCLUDE_DIRS
+            "${SDK_ROOT}/modules/nrfx/drivers/include"
+            )
+
+    list(APPEND SOURCE_FILES
+            "${SDK_ROOT}/modules/nrfx/drivers/src/nrfx_pwm.c"
+            )
+endmacro()
+
 # adds peripheral resource sharing driver
 macro(nRF5_addPRS)
     list(APPEND INCLUDE_DIRS
