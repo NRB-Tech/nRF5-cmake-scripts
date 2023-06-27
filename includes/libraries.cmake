@@ -75,10 +75,12 @@ endmacro()
 macro(nRF5_addAtomic)
     list(APPEND INCLUDE_DIRS
             "${SDK_ROOT}/components/libraries/atomic/"
+            "${SDK_ROOT}/modules/nrfx/soc"
             )
 
     list(APPEND SOURCE_FILES
             "${SDK_ROOT}/components/libraries/atomic/nrf_atomic.c"
+            "${SDK_ROOT}/modules/nrfx/soc/nrfx_atomic.c"
             )
 endmacro()
 
