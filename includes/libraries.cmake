@@ -478,6 +478,17 @@ macro(nRF5_addPWM)
             )
 endmacro()
 
+# adds COMP driver
+macro(nRF5_addCOMP)
+    list(APPEND INCLUDE_DIRS
+            "${SDK_ROOT}/modules/nrfx/drivers/include"
+            )
+
+    list(APPEND SOURCE_FILES
+            "${SDK_ROOT}/modules/nrfx/drivers/src/nrfx_comp.c"
+            )
+endmacro()
+
 # adds peripheral resource sharing driver
 macro(nRF5_addPRS)
     list(APPEND INCLUDE_DIRS
