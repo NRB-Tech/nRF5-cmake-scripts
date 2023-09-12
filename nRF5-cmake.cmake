@@ -295,7 +295,7 @@ function(nRF5_addFlashTarget isApp targetName hexFile)
     if(${isApp})
         set(OPT "--sectorerase")
     else()
-        set(OPT "--chiperase")
+        set(OPT "--recover")
     endif()
     add_custom_target(${targetName}_flash
             COMMAND ${Python3_EXECUTABLE} ${CMAKE_CONFIG_DIR}/nrfjprog.py "${hexFile}" ${OPT}
