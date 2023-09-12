@@ -1,15 +1,15 @@
-diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv500src.orig/CMake/FindSDK.cmake nrf5SDKforMeshv500src/CMake/FindSDK.cmake
---- nrf5SDKforMeshv500src.orig/CMake/FindSDK.cmake	2020-11-18 06:43:36.000000000 +0000
-+++ nrf5SDKforMeshv500src/CMake/FindSDK.cmake	2021-11-22 15:01:49.000000000 +0000
+diff -Naur -x *.DS_Store -x *.elf -x *.hex -x *.map -x *.o -x *.bin -x _build -x Output -x *.emSession nrf5SDKforMeshv500src.orig/CMake/FindSDK.cmake nrf5SDKforMeshv500src/CMake/FindSDK.cmake
+--- nrf5SDKforMeshv500src.orig/CMake/FindSDK.cmake	2020-11-18 06:43:38
++++ nrf5SDKforMeshv500src/CMake/FindSDK.cmake	2022-05-05 17:41:21
 @@ -1,4 +1,4 @@
 -set(nRF5_SDK_VERSION "nRF5_SDK_17.0.2_d674dde" CACHE STRING "nRF5 SDK")
 +set(nRF5_SDK_VERSION "nRF5_SDK_17.1.0_ddde560" CACHE STRING "nRF5 SDK")
  
  if (NOT nRF5_SDK_VERSION)
      message(FATAL_ERROR "You need to specifiy a nRF5_SDK_VERSION to use.")
-diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv500src.orig/CMake/GenerateSESProject.cmake nrf5SDKforMeshv500src/CMake/GenerateSESProject.cmake
---- nrf5SDKforMeshv500src.orig/CMake/GenerateSESProject.cmake	2020-11-18 06:43:36.000000000 +0000
-+++ nrf5SDKforMeshv500src/CMake/GenerateSESProject.cmake	2020-11-18 16:20:43.000000000 +0000
+diff -Naur -x *.DS_Store -x *.elf -x *.hex -x *.map -x *.o -x *.bin -x _build -x Output -x *.emSession nrf5SDKforMeshv500src.orig/CMake/GenerateSESProject.cmake nrf5SDKforMeshv500src/CMake/GenerateSESProject.cmake
+--- nrf5SDKforMeshv500src.orig/CMake/GenerateSESProject.cmake	2020-11-18 06:43:38
++++ nrf5SDKforMeshv500src/CMake/GenerateSESProject.cmake	2022-05-05 17:41:25
 @@ -12,6 +12,7 @@
  set(nrf52833_xxAA_STARTUP_FILE "${SDK_ROOT}/modules/nrfx/mdk/ses_startup_nrf52833.s")
  set(nrf52840_xxAA_STARTUP_FILE "${SDK_ROOT}/modules/nrfx/mdk/ses_startup_nrf52840.s")
@@ -51,9 +51,9 @@ diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' 
      }
  }")
  
-diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv500src.orig/CMake/Nrfjprog.cmake nrf5SDKforMeshv500src/CMake/Nrfjprog.cmake
---- nrf5SDKforMeshv500src.orig/CMake/Nrfjprog.cmake	2020-11-18 06:43:36.000000000 +0000
-+++ nrf5SDKforMeshv500src/CMake/Nrfjprog.cmake	2020-11-18 16:21:45.000000000 +0000
+diff -Naur -x *.DS_Store -x *.elf -x *.hex -x *.map -x *.o -x *.bin -x _build -x Output -x *.emSession nrf5SDKforMeshv500src.orig/CMake/Nrfjprog.cmake nrf5SDKforMeshv500src/CMake/Nrfjprog.cmake
+--- nrf5SDKforMeshv500src.orig/CMake/Nrfjprog.cmake	2020-11-18 06:43:38
++++ nrf5SDKforMeshv500src/CMake/Nrfjprog.cmake	2022-05-05 17:41:28
 @@ -5,30 +5,7 @@
      mergehex)
  
@@ -86,9 +86,9 @@ diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' 
  else ()
      message(STATUS "Could not find nRFx command line tools (`nrfjprog` and `mergehex`).
     See https://infocenter.nordicsemi.com/topic/ug_nrf5x_cltools/UG/cltools/nrf5x_installation.html.
-diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv500src.orig/CMake/SES/SESGenerator.py nrf5SDKforMeshv500src/CMake/SES/SESGenerator.py
---- nrf5SDKforMeshv500src.orig/CMake/SES/SESGenerator.py	2020-11-18 06:43:36.000000000 +0000
-+++ nrf5SDKforMeshv500src/CMake/SES/SESGenerator.py	2021-11-22 15:01:49.000000000 +0000
+diff -Naur -x *.DS_Store -x *.elf -x *.hex -x *.map -x *.o -x *.bin -x _build -x Output -x *.emSession nrf5SDKforMeshv500src.orig/CMake/SES/SESGenerator.py nrf5SDKforMeshv500src/CMake/SES/SESGenerator.py
+--- nrf5SDKforMeshv500src.orig/CMake/SES/SESGenerator.py	2020-11-18 06:43:38
++++ nrf5SDKforMeshv500src/CMake/SES/SESGenerator.py	2022-05-05 17:41:33
 @@ -88,7 +88,6 @@
      Group(name="Mesh stack", files=[], match_string="mesh/stack"),
      Group(name="GATT", files=[], match_string="mesh/gatt"),
@@ -117,9 +117,9 @@ diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' 
      s = ""
  
      with open("ses.xml", "r") as f:
-diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv500src.orig/CMake/nrfjprog.py nrf5SDKforMeshv500src/CMake/nrfjprog.py
---- nrf5SDKforMeshv500src.orig/CMake/nrfjprog.py	2020-11-18 06:43:36.000000000 +0000
-+++ nrf5SDKforMeshv500src/CMake/nrfjprog.py	2021-11-18 23:01:34.000000000 +0000
+diff -Naur -x *.DS_Store -x *.elf -x *.hex -x *.map -x *.o -x *.bin -x _build -x Output -x *.emSession nrf5SDKforMeshv500src.orig/CMake/nrfjprog.py nrf5SDKforMeshv500src/CMake/nrfjprog.py
+--- nrf5SDKforMeshv500src.orig/CMake/nrfjprog.py	2020-11-18 06:43:38
++++ nrf5SDKforMeshv500src/CMake/nrfjprog.py	2023-09-12 16:10:34
 @@ -41,6 +41,8 @@
  
  
@@ -129,9 +129,24 @@ diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' 
      device_range = list(range(len(devices)))
      number = None
      while number is None:
-diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv500src.orig/CMake/sdk/nRF5_SDK_17.1.0_ddde560.cmake nrf5SDKforMeshv500src/CMake/sdk/nRF5_SDK_17.1.0_ddde560.cmake
---- nrf5SDKforMeshv500src.orig/CMake/sdk/nRF5_SDK_17.1.0_ddde560.cmake	1970-01-01 01:00:00.000000000 +0100
-+++ nrf5SDKforMeshv500src/CMake/sdk/nRF5_SDK_17.1.0_ddde560.cmake	2021-11-22 15:01:49.000000000 +0000
+@@ -64,12 +66,8 @@
+ def flash(args):
+     device, hexfile, mode = args
+     device = str(device)
+-    cmd = ["nrfjprog", "-s", device, "--program", hexfile, "%s" % mode]
+-    print("# Programming ...")
+-    print(' '.join(cmd))
+-    subprocess.check_output(cmd)
+-    cmd = ["nrfjprog",  "-s", device, "--reset"]
+-    print("# Resetting ...")
++    cmd = ["nrfjprog", "-s", device, "--verify", "--reset", "--program", hexfile, "%s" % mode]
++    print("# Erasing, programming, verifying and resetting ...")
+     print(' '.join(cmd))
+     subprocess.check_output(cmd)
+ 
+diff -Naur -x *.DS_Store -x *.elf -x *.hex -x *.map -x *.o -x *.bin -x _build -x Output -x *.emSession nrf5SDKforMeshv500src.orig/CMake/sdk/nRF5_SDK_17.1.0_ddde560.cmake nrf5SDKforMeshv500src/CMake/sdk/nRF5_SDK_17.1.0_ddde560.cmake
+--- nrf5SDKforMeshv500src.orig/CMake/sdk/nRF5_SDK_17.1.0_ddde560.cmake	1970-01-01 01:00:00
++++ nrf5SDKforMeshv500src/CMake/sdk/nRF5_SDK_17.1.0_ddde560.cmake	2021-11-22 15:01:49
 @@ -0,0 +1,27 @@
 +set(nRF5_SDK_17.1.0_ddde560_SOURCE_FILES
 +    "${SDK_ROOT}/components/libraries/util/app_error.c"
@@ -160,26 +175,30 @@ diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' 
 +        ${nRF5_SDK_17.1.0_ddde560_SOURCE_FILES}
 +        "${SDK_ROOT}/components/libraries/util/app_error_handler_gcc.c")
 +endif ()
-diff -Naur -x '*.DS_Store' -x '*.elf' -x '*.hex' -x '*.map' -x '*.o' -x '*.bin' -x _build -x Output -x '*.emSession' nrf5SDKforMeshv500src.orig/CMake/toolchain/gccarmemb.cmake nrf5SDKforMeshv500src/CMake/toolchain/gccarmemb.cmake
---- nrf5SDKforMeshv500src.orig/CMake/toolchain/gccarmemb.cmake	2020-11-18 06:43:36.000000000 +0000
-+++ nrf5SDKforMeshv500src/CMake/toolchain/gccarmemb.cmake	2022-04-28 11:54:13.000000000 +0100
-@@ -1,6 +1,3 @@
+diff -Naur -x *.DS_Store -x *.elf -x *.hex -x *.map -x *.o -x *.bin -x _build -x Output -x *.emSession nrf5SDKforMeshv500src.orig/CMake/toolchain/gccarmemb.cmake nrf5SDKforMeshv500src/CMake/toolchain/gccarmemb.cmake
+--- nrf5SDKforMeshv500src.orig/CMake/toolchain/gccarmemb.cmake	2020-11-18 06:43:38
++++ nrf5SDKforMeshv500src/CMake/toolchain/gccarmemb.cmake	2023-05-21 21:39:56
+@@ -1,11 +1,8 @@
 -set(CMAKE_C_COMPILER arm-none-eabi-gcc)
 -set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
 -
  set(data_flags "-ffunction-sections -fdata-sections -fno-strict-aliasing -fno-builtin --short-enums")
  set(warning_flags "-Wall -Wno-attributes -Wno-format")
  set(CMAKE_C_FLAGS_INIT "--std=gnu99 ${warning_flags} ${data_flags}")
-@@ -42,12 +39,19 @@
+ 
+-set(CMAKE_C_FLAGS_DEBUG          "-Og -g3"  CACHE STRING "")
++set(CMAKE_C_FLAGS_DEBUG          "-O0 -g3"  CACHE STRING "")
+ set(CMAKE_C_FLAGS_MINSIZEREL     "-Os -g "  CACHE STRING "")
+ set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O3 -g "  CACHE STRING "")
+ set(CMAKE_C_FLAGS_RELEASE        "-O3 -DNDEBUG" CACHE STRING "")
+@@ -42,12 +39,17 @@
      set_target_properties(${target_name} PROPERTIES LINK_FLAGS ${link_flags})
  endfunction (set_target_link_options)
  
 -function (create_hex executable)
 +function (create_hex executable symbols_to_remove)
-+    if(symbols_to_remove)
-+        list(JOIN symbols_to_remove ";-R;" symbols_to_remove)
-+        set(symbols_to_remove "-R;${symbols_to_remove}")
-+    endif()
++    list(JOIN symbols_to_remove ";-R;" symbols_to_remove)
++    set(symbols_to_remove "-R;${symbols_to_remove}")
      add_custom_command(
          TARGET ${executable}
          POST_BUILD
