@@ -10,6 +10,7 @@ set(nRF52832_FAMILY NRF52)
 set(nRF52832-QFAB_FAMILY NRF52QFAB)
 set(nRF52810_FAMILY NRF52810)
 set(nRF52840_FAMILY NRF52840)
+set(nRF52833_FAMILY NRF52)
 
 # taken from running nrfutil pkg generate --help, see --sd-req flag,
 # or in SDK/components/softdevice/sXXX/sXXX_nrfXX_X.X.X_release-notes.pdf,
