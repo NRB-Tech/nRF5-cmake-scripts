@@ -291,19 +291,25 @@ macro(nRF5_setup)
     endif()
 endmacro()
 
-function(nRF5_addFlashTarget isApp targetName hexFile)
-    if(${isApp})
+function(nRF5_addFlashTarget sectorErase targetName hexFile)
+    if(${sectorErase})
         set(OPT "--sectorerase")
+        set(suffix "_sectorerase")
     else()
         set(OPT "--recover")
+        set(suffix "")
     endif()
-    add_custom_target(${targetName}_flash
+    add_custom_target(${targetName}_flash${suffix}
             COMMAND ${Python3_EXECUTABLE} ${CMAKE_CONFIG_DIR}/nrfjprog.py "${hexFile}" ${OPT}
             USES_TERMINAL
             DEPENDS ${targetName})
 endfunction()
 
 function(nRF5_addAppFlashTarget targetName hexFile)
+    nRF5_addFlashTarget(TRUE "${targetName}" "${hexFile}")
+endfunction()
+
+function(nRF5_addSectorEraseFlashTarget targetName hexFile)
     nRF5_addFlashTarget(TRUE "${targetName}" "${hexFile}")
 endfunction()
 
