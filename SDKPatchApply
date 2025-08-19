@@ -14,9 +14,23 @@ realpath() {
 }
 
 root="$( realpath $(dirname "${BASH_SOURCE[0]}") )"
+. "$root/versions.sh"
 
 cd "$root/../toolchains/nRF5"
 
-patch -d nrf5SDKforMeshv500src -p1 < "$root/sdk/nrf5SDKforMeshv500src.patch"
+mesh_dir="nrf5SDKforMeshv${NRF5_MESH_SDK_VERSION}src"
+mesh_patch="$root/sdk/${mesh_dir}.patch"
+if [[ -s "$mesh_patch" ]]; then
+  patch -d "$mesh_dir" -p1 < "$mesh_patch"
+fi
+
+# Also patch the main SDK's Makefile.common if a patch is present
+sdk_version="$NRF5_SDK_VERSION"
+sdk_patch="$root/sdk/${sdk_version}.patch"
+if [[ -n "${sdk_version:-}" && -s "$sdk_patch" ]]; then
+  echo "Applying main SDK patch: $sdk_patch"
+  # Patch uses git-style a/ b/ paths; apply relative to SDK root
+  patch -d "$sdk_version" -p1 < "$sdk_patch"
+fi
 
 echo "Done!"

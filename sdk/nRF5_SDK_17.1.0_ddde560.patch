@@ -1,0 +1,99 @@
+--- nRF5_SDK_17.1.0_ddde560_vanilla/components/toolchain/gcc/Makefile.common	2024-07-09 09:47:44
++++ nRF5_SDK_17.1.0_ddde560/components/toolchain/gcc/Makefile.common	2025-08-19 20:14:15
+@@ -116,6 +116,18 @@
+ '$(subst ','\'',$(1))'
+ endef
+ 
++# $1 string to escape
++# Escapes colons to avoid parsing issues with Windows drive-letter paths (e.g., Z:/...)
++define escape_colons
++$(subst :,\:,$(1))
++endef
++
++# $1 string to sanitize for use as a variable name
++# Replace Windows drive-letter colons with a unique token to form a safe make variable name
++define sanitize_varname
++$(subst :,__COLON__,$(1))
++endef
++
+ # Toolchain commands
+ CC      := $(call quote,$(GNU_INSTALL_ROOT)$(GNU_PREFIX)-gcc)
+ CXX     := $(call quote,$(GNU_INSTALL_ROOT)$(GNU_PREFIX)-c++)
+@@ -146,10 +158,10 @@
+ endef
+ 
+ ifeq ($(PASS_INCLUDE_PATHS_VIA_FILE),1)
+-INC_PATHS = @$($@_INC)
++INC_PATHS = @$($(call sanitize_varname,$@)_INC)
+ GENERATE_INC_FILE := 1
+ else
+-INC_PATHS = $(call target_specific, INC_PATHS, $($@_TGT))
++INC_PATHS = $(call target_specific, INC_PATHS, $($(call sanitize_varname,$@)_TGT))
+ GENERATE_INC_FILE :=
+ endif
+ 
+@@ -158,9 +170,9 @@
+ # $3 include paths container file
+ # $4 target name
+ define bind_obj_with_src
+-$(eval $(1)     := $(2)) \
+-$(eval $(1)_INC := $(3)) \
+-$(eval $(1)_TGT := $(4)) \
++$(eval $(call sanitize_varname,$(1))     := $(2)) \
++$(eval $(call sanitize_varname,$(1))_INC := $(3)) \
++$(eval $(call sanitize_varname,$(1))_TGT := $(4)) \
+ $(eval $(1): Makefile | $(dir $(1)).) \
+ $(if $(GENERATE_INC_FILE), $(eval $(1): $(3)))
+ endef
+@@ -208,8 +220,9 @@
+ # $2 include paths container file
+ # $3 build goal name
+ define prepare_build
++$(info Preparing build for target $(1) with build goal $(3))
+ $(eval DEPENDENCIES :=) \
+-$(eval $(3): \
++$(eval $(call escape_colons,$(3)): \
+   $(call get_object_files, $(1), $(2), \
+     $(SRC_FILES) $(call target_specific, SRC_FILES, $(1)))) \
+ $(eval -include $(DEPENDENCIES)) \
+@@ -220,6 +233,7 @@
+ 
+ # $1 target name
+ define define_target
++$(info Defining target $(1))
+ $(eval OUTPUT_FILE := $(OUTPUT_DIRECTORY)/$(strip $(1))) \
+ $(eval $(1): $(OUTPUT_FILE).out $(OUTPUT_FILE).hex $(OUTPUT_FILE).bin \
+            ; @echo DONE $(strip $(1))) \
+@@ -263,8 +277,8 @@
+ # $2 flags
+ # $3 message
+ define run
+-$(info $(call PROGRESS,$(3) file: $(notdir $($@)))) \
+-$(NO_ECHO)$(1) -MP -MD -c -o $@ $(call get_path,$($@)) $(2) $(INC_PATHS)
++$(info $(call PROGRESS,$(3) file: $(notdir $($(call sanitize_varname,$@))))) \
++$(NO_ECHO)$(1) -MP -MD -c -o $@ $(call get_path,$($(call sanitize_varname,$@))) $(2) $(INC_PATHS)
+ endef
+ 
+ # Create object files from C source files
+@@ -276,9 +290,12 @@
+ 	$(call run,$(CXX),$(CFLAGS) $(CXXFLAGS),Compiling)
+ 
+ # Create object files from assembly source files
+-%.S.o %.s.o.o:
++%.S.o:
+ 	$(call run,$(CC) -x assembler-with-cpp,$(ASMFLAGS),Assembling)
+ 
++%.s.o.o:
++	$(call run,$(CC) -x assembler-with-cpp,$(ASMFLAGS),Assembling)
++
+ ifeq ($(PASS_LINKER_INPUT_VIA_FILE),1)
+ GENERATE_LD_INPUT_FILE = $(call dump, $^ $(LIB_FILES)) > $(@:.out=.in)
+ LD_INPUT               = @$(@:.out=.in)
+@@ -302,6 +319,6 @@
+ # Create binary .hex file from the .out file
+ %.hex: %.out
+ 	$(info Preparing: $@)
+-	$(NO_ECHO)$(OBJCOPY) -O ihex $< $@
++	$(NO_ECHO)$(OBJCOPY) $(SYMBOLS_TO_REMOVE) -O ihex $< $@
+ 
+ endif # ifneq (,$(filter clean, $(MAKECMDGOALS)))

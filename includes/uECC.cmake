@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.7.0)
-
 set(cortex-m0_uECC "nf")
 set(cortex-m4_uECC "nf")
 set(cortex-m4f_uECC "hf")

@@ -17,6 +17,13 @@ root="$( realpath $(dirname "${BASH_SOURCE[0]}") )"
 
 cd "$root"
 
-perl -0pi -e "s/(diff|\-\-\-|\+\+\+|\@\@)(.*?)$(printf '\r')/\1\2/g" sdk/nrf5SDKforMeshv500src.patch
+. "$root/versions.sh"
+mesh_dir="nrf5SDKforMeshv${NRF5_MESH_SDK_VERSION}src"
+perl -0pi -e "s/(diff|\-\-\-|\+\+\+|\@\@)(.*?)$(printf '\r')/\1\2/g" "sdk/${mesh_dir}.patch"
+
+sdk_version="$NRF5_SDK_VERSION"
+if [[ -n "${sdk_version:-}" ]]; then
+  perl -0pi -e "s/(diff|\-\-\-|\+\+\+|\@\@)(.*?)$(printf '\r')/\1\2/g" "sdk/${sdk_version}.patch"
+fi
 
 echo "Done!"

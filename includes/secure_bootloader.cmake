@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.5.0)
-
 include(${CMAKE_CURRENT_LIST_DIR}/uECC.cmake)
 include(${CMAKE_CURRENT_LIST_DIR}/makefile_vars.cmake)
 
@@ -111,7 +109,7 @@ function(nRF5_addBootloader SECURE EXECUTABLE_NAME PUBLIC_KEY_C_PATH BUILD_FLAGS
     add_custom_command(OUTPUT "${BUILD_DIR}/bootloader.hex"
             COMMAND ${CMAKE_COMMAND} -E copy "${PUBLIC_KEY_C_PATH}" "${SDK_ROOT}/examples/dfu/dfu_public_key.c"
             COMMAND ${CMAKE_COMMAND} -E make_directory "${BUILD_DIR}"
-            COMMAND $(MAKE) -C "${${TYPE}_BOOTLOADER_SRC_DIR}" ${MAKEFILE_VARS} ${BUILD_FLAGS} OUTPUT_DIRECTORY="${BUILD_DIR}"
+            COMMAND $(MAKE) -C "${${TYPE}_BOOTLOADER_SRC_DIR}" ${MAKEFILE_VARS} ${BUILD_FLAGS} "OUTPUT_DIRECTORY=${BUILD_DIR}"
             COMMAND ${CMAKE_COMMAND} -E rename "${BUILD_DIR}/${PLATFORM_LC}_${SOFTDEVICE_TYPE}.hex" "${BUILD_DIR}/bootloader.hex"
             COMMAND ${CMAKE_COMMAND} -E rename "${BUILD_DIR}/${PLATFORM_LC}_${SOFTDEVICE_TYPE}.out" "${BUILD_DIR}/bootloader.out"
             DEPENDS uECC

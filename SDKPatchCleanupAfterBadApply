@@ -14,15 +14,30 @@ realpath() {
 }
 
 root="$( realpath $(dirname "${BASH_SOURCE[0]}") )"
+. "$root/versions.sh"
 
 cd "$root/../toolchains/nRF5"
 
-find nrf5SDKforMeshv500src '(' \
-    -name \*-baseline -o \
-    -name \*-merge -o \
-    -name \*-original -o \
-    -name \*.orig -o \
-    -name \*.rej \
-')' -delete
+mesh_dir="nrf5SDKforMeshv${NRF5_MESH_SDK_VERSION}src"
+if [[ -d "$mesh_dir" ]]; then
+  find "$mesh_dir" '(' \
+      -name \*-baseline -o \
+      -name \*-merge -o \
+      -name \*-original -o \
+      -name \*.orig -o \
+      -name \*.rej \
+  ')' -delete
+fi
+
+sdk_version="$NRF5_SDK_VERSION"
+if [[ -n "${sdk_version:-}" && -d "$sdk_version" ]]; then
+  find "$sdk_version" '(' \
+      -name \*-baseline -o \
+      -name \*-merge -o \
+      -name \*-original -o \
+      -name \*.orig -o \
+      -name \*.rej \
+  ')' -delete
+fi
 
 echo "Done!"

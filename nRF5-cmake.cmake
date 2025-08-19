@@ -1,13 +1,12 @@
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.10)
 
-if (NOT CMAKE_VERSION VERSION_LESS 3.9)
-    # Allow user to enable CMAKE_INTERPROCEDURAL_OPTIMIZATION (LTO) if supported for the toolchain.
-    # This is supported from CMake version 9 and later.
-    cmake_policy(SET CMP0069 NEW)
-endif ()
+# Allow user to enable CMAKE_INTERPROCEDURAL_OPTIMIZATION (LTO) if supported for the toolchain.
+# This is supported from CMake version 9 and later.
+cmake_policy(SET CMP0069 NEW)
 
-set(nRF5_SDK_VERSION "nRF5_SDK_17.1.0_ddde560" CACHE STRING "nRF5 SDK")
-set(nRF5_MESH_SDK_VERSION "500" CACHE STRING "nRF5 Mesh SDK version")
+include("${CMAKE_CURRENT_LIST_DIR}/versions.cmake")
+set(nRF5_SDK_VERSION "${nRF5_SDK_VERSION_DEFAULT}" CACHE STRING "nRF5 SDK")
+set(nRF5_MESH_SDK_VERSION "${nRF5_MESH_SDK_VERSION_DEFAULT}" CACHE STRING "nRF5 Mesh SDK version")
 
 if(NOT DEFINED nRF5_MESH_SOURCE_DIR)
     set(nRF5_MESH_SOURCE_DIR "${CMAKE_SOURCE_DIR}/toolchains/nRF5/nrf5SDKforMeshv${nRF5_MESH_SDK_VERSION}src")
@@ -82,10 +81,9 @@ set(nRF5_CMAKE_PATH ${CMAKE_CURRENT_LIST_DIR})
 set(PATCH_EXECUTABLE "patch")
 
 set(nRF5_SDK_PATCH_COMMAND "")
-if(DEFINED nRF5_SDK_PATCH_FILE)
-    if (EXISTS "${nRF5_SDK_PATCH_FILE}")
-        set(nRF5_SDK_PATCH_COMMAND ${GIT} -C "${SDK_ROOT}" apply --ignore-space-change --ignore-whitespace --whitespace=nowarn ${nRF5_SDK_PATCH_FILE})
-    endif()
+set(nRF5_SDK_PATCH_FILE "${nRF5_CMAKE_PATH}/sdk/${nRF5_SDK_VERSION}.patch")
+if (EXISTS "${nRF5_SDK_PATCH_FILE}")
+    set(nRF5_SDK_PATCH_COMMAND ${GIT} -C "${SDK_ROOT}" apply --ignore-space-change --ignore-whitespace --whitespace=nowarn ${nRF5_SDK_PATCH_FILE})
 endif()
 
 set(MESH_PATCH_COMMAND "")
