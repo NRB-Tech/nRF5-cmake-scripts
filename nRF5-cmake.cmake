@@ -111,6 +111,9 @@ macro(nRF5_setup)
     endif()
     set(nRF5_setup_complete TRUE)
 
+    # Use current timestamp when extracting archives
+    cmake_policy(SET CMP0135 NEW)
+
     if(NOT EXISTS ${SDK_ROOT}/license.txt)
         include(ExternalProject)
 
@@ -136,7 +139,7 @@ macro(nRF5_setup)
 
     if(NOT EXISTS ${CMAKE_CONFIG_DIR}/Toolchain.cmake)
         include(ExternalProject)
-        set(nRF5_MESH_SDK_URL "https://www.nordicsemi.com/-/media/Software-and-other-downloads/SDKs/nRF5-SDK-for-Mesh/nrf5SDKforMeshv${nRF5_MESH_SDK_VERSION}src.zip")
+        set(nRF5_MESH_SDK_URL "https://nsscprodmedia.blob.core.windows.net/prod/software-and-other-downloads/sdks/nrf5-sdk-for-mesh/nrf5sdkformeshv${nRF5_MESH_SDK_VERSION}src.zip")
 
         ExternalProject_Add(nRF5_MESH_SDK
                 PREFIX "nRF5_mesh_sdk"
