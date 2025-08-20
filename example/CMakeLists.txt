@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.6)
+cmake_minimum_required(VERSION 3.10)
 
 # Adjust these parameters for your hardware platform
 # must be set as cache strings to ensure they are not overwritten in mesh SDK
