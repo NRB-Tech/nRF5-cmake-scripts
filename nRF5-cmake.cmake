@@ -112,7 +112,9 @@ macro(nRF5_setup)
     set(nRF5_setup_complete TRUE)
 
     # Use current timestamp when extracting archives
-    cmake_policy(SET CMP0135 NEW)
+    if (POLICY CMP0135)
+        cmake_policy(SET CMP0135 NEW)
+    endif()
 
     if(NOT EXISTS ${SDK_ROOT}/license.txt)
         include(ExternalProject)
