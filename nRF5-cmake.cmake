@@ -8,6 +8,16 @@ include("${CMAKE_CURRENT_LIST_DIR}/versions.cmake")
 set(nRF5_SDK_VERSION "${nRF5_SDK_VERSION_DEFAULT}" CACHE STRING "nRF5 SDK")
 set(nRF5_MESH_SDK_VERSION "${nRF5_MESH_SDK_VERSION_DEFAULT}" CACHE STRING "nRF5 Mesh SDK version")
 
+# must be set in file (not macro) scope (in macro would point to parent CMake directory)
+set(nRF5_CMAKE_PATH ${CMAKE_CURRENT_LIST_DIR})
+
+if(NOT DEFINED nRF5_SDK_PATCH_FILE)
+    set(nRF5_SDK_PATCH_FILE "${nRF5_CMAKE_PATH}/sdk/${nRF5_SDK_VERSION}.patch" CACHE STRING "nRF5 SDK Patch file")
+endif()
+if(NOT DEFINED MESH_PATCH_FILE)
+    set(MESH_PATCH_FILE "${nRF5_CMAKE_PATH}/sdk/nrf5SDKforMeshv${nRF5_MESH_SDK_VERSION}src.patch" CACHE STRING "nRF5 Mesh SDK Patch file")
+endif()
+
 if(NOT DEFINED nRF5_MESH_SOURCE_DIR)
     set(nRF5_MESH_SOURCE_DIR "${CMAKE_SOURCE_DIR}/toolchains/nRF5/nrf5SDKforMeshv${nRF5_MESH_SDK_VERSION}src")
 endif()
@@ -74,22 +84,17 @@ if(NOT SOFTDEVICE_VERSION)
     message(FATAL_ERROR "The softdevice version (SOFTDEVICE_VERSION) must be set, e.g. \"7.2.0\"")
 endif()
 
-# must be set in file (not macro) scope (in macro would point to parent CMake directory)
-set(nRF5_CMAKE_PATH ${CMAKE_CURRENT_LIST_DIR})
-
 # prevent mesh SDK warning
 set(PATCH_EXECUTABLE "patch")
 
 set(nRF5_SDK_PATCH_COMMAND "")
-set(nRF5_SDK_PATCH_FILE "${nRF5_CMAKE_PATH}/sdk/${nRF5_SDK_VERSION}.patch")
 if (EXISTS "${nRF5_SDK_PATCH_FILE}")
-    set(nRF5_SDK_PATCH_COMMAND ${GIT} -C "${SDK_ROOT}" apply --ignore-space-change --ignore-whitespace --whitespace=nowarn ${nRF5_SDK_PATCH_FILE})
+    set(nRF5_SDK_PATCH_COMMAND ${GIT} -C "${SDK_ROOT}" apply -p1 --ignore-space-change --ignore-whitespace --whitespace=nowarn ${nRF5_SDK_PATCH_FILE})
 endif()
 
 set(MESH_PATCH_COMMAND "")
-set(MESH_PATCH_FILE "${nRF5_CMAKE_PATH}/sdk/nrf5SDKforMeshv${nRF5_MESH_SDK_VERSION}src.patch")
 if (EXISTS "${MESH_PATCH_FILE}")
-    set(MESH_PATCH_COMMAND ${GIT} -C "${nRF5_MESH_SOURCE_DIR}" apply --ignore-space-change --ignore-whitespace --whitespace=nowarn ${MESH_PATCH_FILE})
+    set(MESH_PATCH_COMMAND ${GIT} -C "${nRF5_MESH_SOURCE_DIR}" apply -p1 --ignore-space-change --ignore-whitespace --whitespace=nowarn ${MESH_PATCH_FILE})
 endif()
 
 macro(add_download_target name)

@@ -1,4 +1,4 @@
---- nRF5_SDK_17.1.0_ddde560_vanilla/components/toolchain/gcc/Makefile.common	2024-07-09 09:47:44
+--- nRF5_SDK_17.1.0_ddde560_vanilla/components/toolchain/gcc/Makefile.common	2025-08-20 19:26:19
 +++ nRF5_SDK_17.1.0_ddde560/components/toolchain/gcc/Makefile.common	2025-08-19 20:14:15
 @@ -116,6 +116,18 @@
  '$(subst ','\'',$(1))'
