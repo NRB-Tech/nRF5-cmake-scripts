@@ -203,8 +203,8 @@ diff -Naur -x *.DS_Store -x *.elf -x *.hex -x *.map -x *.o -x *.bin -x _build -x
 +        "${SDK_ROOT}/components/libraries/util/app_error_handler_gcc.c")
 +endif ()
 diff -Naur -x *.DS_Store -x *.elf -x *.hex -x *.map -x *.o -x *.bin -x _build -x Output -x *.emSession nrf5SDKforMeshv500src.orig/CMake/toolchain/gccarmemb.cmake nrf5SDKforMeshv500src/CMake/toolchain/gccarmemb.cmake
---- nrf5SDKforMeshv500src.orig/CMake/toolchain/gccarmemb.cmake	2020-11-18 06:43:38
-+++ nrf5SDKforMeshv500src/CMake/toolchain/gccarmemb.cmake	2023-05-21 21:39:56
+--- nrf5SDKforMeshv500src.orig/CMake/toolchain/gccarmemb.cmake	2020-11-18 06:43:36
++++ nrf5SDKforMeshv500src/CMake/toolchain/gccarmemb.cmake	2026-02-09 11:31:23
 @@ -1,11 +1,8 @@
 -set(CMAKE_C_COMPILER arm-none-eabi-gcc)
 -set(CMAKE_TRY_COMPILE_TARGET_TYPE STATIC_LIBRARY)
@@ -218,14 +218,16 @@ diff -Naur -x *.DS_Store -x *.elf -x *.hex -x *.map -x *.o -x *.bin -x _build -x
  set(CMAKE_C_FLAGS_MINSIZEREL     "-Os -g "  CACHE STRING "")
  set(CMAKE_C_FLAGS_RELWITHDEBINFO "-O3 -g "  CACHE STRING "")
  set(CMAKE_C_FLAGS_RELEASE        "-O3 -DNDEBUG" CACHE STRING "")
-@@ -42,12 +39,17 @@
+@@ -42,12 +39,19 @@
      set_target_properties(${target_name} PROPERTIES LINK_FLAGS ${link_flags})
  endfunction (set_target_link_options)
  
 -function (create_hex executable)
 +function (create_hex executable symbols_to_remove)
-+    list(JOIN symbols_to_remove ";-R;" symbols_to_remove)
-+    set(symbols_to_remove "-R;${symbols_to_remove}")
++    if(symbols_to_remove)
++        list(JOIN symbols_to_remove ";-R;" symbols_to_remove)
++        set(symbols_to_remove "-R;${symbols_to_remove}")
++    endif()
      add_custom_command(
          TARGET ${executable}
          POST_BUILD
