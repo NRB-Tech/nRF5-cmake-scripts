@@ -26,35 +26,46 @@ diff -Naur \
   -x *.DS_Store -x *.elf -x *.hex -x *.map -x *.o -x *.bin -x _build -x Output -x *.emSession \
   "${mesh_dir}.orig" "${mesh_dir}" > "$root/sdk/${mesh_dir}.patch" || true
 
-# Create main SDK patch limited to components/toolchain/gcc/Makefile.common
-. "$root/versions.sh"
+# Create main SDK patch for files managed by the submodule
 sdk_version="$NRF5_SDK_VERSION"
 if [[ -n "${sdk_version:-}" ]]; then
   sdk_dir="${sdk_version}"
   sdk_dir_orig="${sdk_version}_vanilla"
-  target_rel="components/toolchain/gcc/Makefile.common"
-  if [[ -f "$sdk_dir/$target_rel" && -f "$sdk_dir_orig/$target_rel" ]]; then
-    tmp_patch="$root/sdk/${sdk_version}.patch.tmp"
-    out_patch="$root/sdk/${sdk_version}.patch"
-    # Create unified diff for the single file
-    diff -u "$sdk_dir_orig/$target_rel" "$sdk_dir/$target_rel" > "$tmp_patch" || true
-    if [[ -s "$tmp_patch" ]]; then
-      # Rewrite headers to a/ b/ paths so git apply works from SDK root
-      sed -E \
-        -e 's|^--- .*components/toolchain/gcc/Makefile\.common$|--- a/components/toolchain/gcc/Makefile.common|' \
-        -e 's|^\+\+\+ .*components/toolchain/gcc/Makefile\.common$|+++ b/components/toolchain/gcc/Makefile.common|' \
-        "$tmp_patch" > "$out_patch"
+  out_patch="$root/sdk/${sdk_version}.patch"
+
+  sdk_files=(
+    "components/toolchain/gcc/Makefile.common"
+    "modules/nrfx/mdk/nrf_common.ld"
+  )
+
+  > "$out_patch"
+  for target_rel in "${sdk_files[@]}"; do
+    if [[ -f "$sdk_dir/$target_rel" && -f "$sdk_dir_orig/$target_rel" ]]; then
+      tmp_patch="$(mktemp)"
+      diff -u "$sdk_dir_orig/$target_rel" "$sdk_dir/$target_rel" > "$tmp_patch" || true
+      if [[ -s "$tmp_patch" ]]; then
+        # Rewrite headers to a/ b/ paths so git apply works from SDK root
+        sed -E \
+          -e "s|^--- .*${target_rel//./\\.}\$|--- a/${target_rel}|" \
+          -e "s|^\+\+\+ .*${target_rel//./\\.}\$|+++ b/${target_rel}|" \
+          "$tmp_patch" >> "$out_patch"
+        echo "  Added $target_rel"
+      else
+        echo "  No changes detected for $target_rel; skipping."
+      fi
       rm -f "$tmp_patch"
-      echo "Wrote main SDK patch: $out_patch"
     else
-      rm -f "$tmp_patch"
-      echo "No changes detected for $target_rel; main SDK patch not created."
+      echo "  Skipping $target_rel: not found in $sdk_dir_orig or $sdk_dir" >&2
     fi
+  done
+
+  if [[ -s "$out_patch" ]]; then
+    echo "Wrote main SDK patch: $out_patch"
   else
-    echo "Skipping main SDK patch: $sdk_dir_orig/$target_rel or $sdk_dir/$target_rel not found" >&2
+    echo "No changes detected; main SDK patch is empty."
   fi
 else
-  echo "Could not determine nRF5 SDK version from $cmake_file; skipping main SDK patch" >&2
+  echo "Could not determine nRF5 SDK version; skipping main SDK patch" >&2
 fi
 
 echo "Done!"

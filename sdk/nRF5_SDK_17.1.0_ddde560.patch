@@ -1,5 +1,5 @@
---- nRF5_SDK_17.1.0_ddde560_vanilla/components/toolchain/gcc/Makefile.common	2025-08-20 19:26:19
-+++ nRF5_SDK_17.1.0_ddde560/components/toolchain/gcc/Makefile.common	2025-08-19 20:14:15
+--- nRF5_SDK_17.1.0_ddde560_vanilla/components/toolchain/gcc/Makefile.common	2021-08-21 11:32:11
++++ nRF5_SDK_17.1.0_ddde560/components/toolchain/gcc/Makefile.common	2026-02-09 12:04:10
 @@ -116,6 +116,18 @@
  '$(subst ','\'',$(1))'
  endef
@@ -45,26 +45,16 @@
  $(eval $(1): Makefile | $(dir $(1)).) \
  $(if $(GENERATE_INC_FILE), $(eval $(1): $(3)))
  endef
-@@ -208,8 +220,9 @@
- # $2 include paths container file
+@@ -209,7 +221,7 @@
  # $3 build goal name
  define prepare_build
-+$(info Preparing build for target $(1) with build goal $(3))
  $(eval DEPENDENCIES :=) \
 -$(eval $(3): \
 +$(eval $(call escape_colons,$(3)): \
    $(call get_object_files, $(1), $(2), \
      $(SRC_FILES) $(call target_specific, SRC_FILES, $(1)))) \
  $(eval -include $(DEPENDENCIES)) \
-@@ -220,6 +233,7 @@
- 
- # $1 target name
- define define_target
-+$(info Defining target $(1))
- $(eval OUTPUT_FILE := $(OUTPUT_DIRECTORY)/$(strip $(1))) \
- $(eval $(1): $(OUTPUT_FILE).out $(OUTPUT_FILE).hex $(OUTPUT_FILE).bin \
-            ; @echo DONE $(strip $(1))) \
-@@ -263,8 +277,8 @@
+@@ -263,8 +275,8 @@
  # $2 flags
  # $3 message
  define run
@@ -75,7 +65,7 @@
  endef
  
  # Create object files from C source files
-@@ -276,9 +290,12 @@
+@@ -276,9 +288,12 @@
  	$(call run,$(CXX),$(CFLAGS) $(CXXFLAGS),Compiling)
  
  # Create object files from assembly source files
@@ -89,7 +79,7 @@
  ifeq ($(PASS_LINKER_INPUT_VIA_FILE),1)
  GENERATE_LD_INPUT_FILE = $(call dump, $^ $(LIB_FILES)) > $(@:.out=.in)
  LD_INPUT               = @$(@:.out=.in)
-@@ -302,6 +319,6 @@
+@@ -302,6 +317,6 @@
  # Create binary .hex file from the .out file
  %.hex: %.out
  	$(info Preparing: $@)
@@ -97,3 +87,17 @@
 +	$(NO_ECHO)$(OBJCOPY) $(SYMBOLS_TO_REMOVE) -O ihex $< $@
  
  endif # ifneq (,$(filter clean, $(MAKECMDGOALS)))
+--- nRF5_SDK_17.1.0_ddde560_vanilla/modules/nrfx/mdk/nrf_common.ld	2021-08-21 11:32:33
++++ nRF5_SDK_17.1.0_ddde560/modules/nrfx/mdk/nrf_common.ld	2026-02-09 12:14:28
+@@ -90,6 +90,11 @@
+     . = ALIGN(4);
+     __etext = .;
+ 
++    .rtt (NOLOAD) :
++    {
++        KEEP(*(.rtt))
++    } > RAM
++
+     .data : AT (__etext)
+     {
+         __data_start__ = .;
