@@ -141,6 +141,17 @@ macro(nRF5_setup)
                 INSTALL_COMMAND ""
                 LOG_DOWNLOAD ON
                 EXCLUDE_FROM_ALL ON)
+
+        # Apply project-specific SDK patch after our SDK patch
+        if(DEFINED PROJECT_SDK_PATCH_FILE AND EXISTS "${PROJECT_SDK_PATCH_FILE}")
+            include(ExternalProject)
+            ExternalProject_Add_Step(nRF5_SDK apply_project_patch
+                    COMMAND ${GIT} -C "${SDK_ROOT}" apply -p1 --ignore-space-change --ignore-whitespace --whitespace=nowarn "${PROJECT_SDK_PATCH_FILE}"
+                    DEPENDEES patch
+                    DEPENDERS configure
+                    COMMENT "Applying project SDK patch: ${PROJECT_SDK_PATCH_FILE}")
+        endif()
+
         add_download_target(nRF5_SDK)
     endif()
 
