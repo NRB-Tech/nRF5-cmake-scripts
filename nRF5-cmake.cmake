@@ -385,9 +385,17 @@ function(nRF5_addSoftDeviceAppMergeTarget EXECUTABLE_NAME)
             VERBATIM)
 endfunction()
 
+function(nRF5_getApplicationVersionParam VERSION_STRING OUTPUT_VAR)
+    if("${VERSION_STRING}" MATCHES "^[0-9]+$")
+        set(${OUTPUT_VAR} --application-version "${VERSION_STRING}" PARENT_SCOPE)
+    else()
+        set(${OUTPUT_VAR} --application-version-string "${VERSION_STRING}" PARENT_SCOPE)
+    endif()
+endfunction()
+
 # Add a bootloader merge target.
 # @param EXECUTABLE_NAME The name of the App executable
-# @param VERSION_STRING The firmware version string
+# @param VERSION_STRING The firmware version string or integer
 # @param PRIVATE_KEY A private key for firmware signing. Required if APP_VALIDATION or SD_VALIDATION is VALIDATE_ECDSA_P256_SHA256
 # @param PREVIOUS_SOFTDEVICES A list of softdevice identifiers used in previous firmware versions
 # @param APP_VALIDATION The method of boot validation for the application [NO_VALIDATION|VALIDATE_GENERATED_CRC|VALIDATE_GENERATED_SHA256|VALIDATE_ECDSA_P256_SHA256]
@@ -412,9 +420,10 @@ function(nRF5_addBootloaderSoftDeviceAppMergeTarget EXECUTABLE_NAME VERSION_STRI
     else()
         set(private_key_param "")
     endif()
+    nRF5_getApplicationVersionParam("${VERSION_STRING}" app_version_param)
     add_custom_target(${EXECUTABLE_NAME}_bl_sd_app_merge DEPENDS "${OP_FILE}")
     add_custom_command(OUTPUT "${OP_FILE}"
-            COMMAND ${NRFUTIL} settings generate --family ${BL_OPT_FAMILY} --application "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}.hex" --application-version-string "${VERSION_STRING}" --app-boot-validation ${APP_VALIDATION} --bootloader-version ${BOOTLOADER_VERSION} --bl-settings-version 2 --softdevice "${${SOFTDEVICE}_HEX_FILE}" --sd-boot-validation ${SD_VALIDATION}${private_key_param} "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}_bootloader_setting.hex"
+            COMMAND ${NRFUTIL} settings generate --family ${BL_OPT_FAMILY} --application "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}.hex" ${app_version_param} --app-boot-validation ${APP_VALIDATION} --bootloader-version ${BOOTLOADER_VERSION} --bl-settings-version 2 --softdevice "${${SOFTDEVICE}_HEX_FILE}" --sd-boot-validation ${SD_VALIDATION}${private_key_param} "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}_bootloader_setting.hex"
             COMMAND ${MERGEHEX} -m ${BOOTLOADER_HEX} "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}_bootloader_setting.hex" "${${SOFTDEVICE}_HEX_FILE}" "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}.hex" -o "${OP_FILE}"
             DEPENDS "${EXECUTABLE_NAME}"
             DEPENDS "${BOOTLOADER_HEX}"
@@ -467,7 +476,8 @@ function(_addDFUPackageTarget INCLUDE_BL_SD EXECUTABLE_NAME VERSION_STRING PRIVA
     endif()
 
     nRF5_get_BL_OPT_SD_REQ(${PREVIOUS_SOFTDEVICES})
-    set(PKG_OPT --sd-req ${BL_OPT_SD_REQ} --hw-version ${BL_OPT_HW_VERSION} --application "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}.hex" --application-version-string "${VERSION_STRING}" --app-boot-validation ${APP_VALIDATION} --key-file "${PRIVATE_KEY}")
+    nRF5_getApplicationVersionParam("${VERSION_STRING}" app_version_param)
+    set(PKG_OPT --sd-req ${BL_OPT_SD_REQ} --hw-version ${BL_OPT_HW_VERSION} --application "${CMAKE_CURRENT_BINARY_DIR}/${EXECUTABLE_NAME}.hex" ${app_version_param} --app-boot-validation ${APP_VALIDATION} --key-file "${PRIVATE_KEY}")
     set(DEPENDS ${EXECUTABLE_NAME})
     if(${INCLUDE_BL_SD})
         list(APPEND PKG_OPT --sd-id ${BL_OPT_SD_ID} --bootloader "${BOOTLOADER_BUILD_DIR_PREFIX}${EXECUTABLE_NAME}/bootloader.hex" --bootloader-version ${BOOTLOADER_VERSION} --softdevice "${${SOFTDEVICE}_HEX_FILE}" --sd-boot-validation ${SD_VALIDATION})
